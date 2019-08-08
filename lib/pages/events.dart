@@ -43,6 +43,7 @@ class _Events extends State<Events> {
     setState(() => _scaffoldKey.currentState
         .showSnackBar(new SnackBar(content: new Text('You wrote $value!'))));
   }
+
   _Events() {
     searchBar = new SearchBar(
         inBar: false,
@@ -96,6 +97,9 @@ class _Events extends State<Events> {
         break;
       case JobFetchAction.blank:
         return _buildNoDataUI();
+      default:
+        return _buildNoDataUI();
+        break;
     }
   }
 
