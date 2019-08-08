@@ -116,7 +116,7 @@ class ListItem extends StatelessWidget {
 
     final List<Widget> rowChildren = <Widget>[
       // Icon(Icons.note_add, size: 36, color: Colors.blueGrey),
-      CircleAvatar(backgroundColor: Colors.blueGrey, child: Icon(Icons.note_add, size: 32, color: Colors.white,)),
+      CircleAvatar(backgroundColor: Colors.blueGrey, child: Icon(Icons.note_add, size: 28, color: Colors.white,)),
       SizedBox(width: 15),
       Expanded(
         child: Column(

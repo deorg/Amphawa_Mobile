@@ -4,7 +4,7 @@ import 'package:amphawa/services/jobs.dart';
 import 'package:amphawa/widgets/contact.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-
+import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'manageEvent.dart';
 
 enum JobFetchAction { fetch, blank, error, complete, timeout }
@@ -21,6 +21,7 @@ class _Events extends State<Events> {
   JobFetchAction action;
   List<Job> jobs = new List<Job>();
   final refreshKey = GlobalKey<RefreshIndicatorState>();
+  SearchBar searchBar;
 
   @override
   void initState() {
@@ -32,10 +33,31 @@ class _Events extends State<Events> {
         onFetchError: onFetchError);
   }
 
+  AppBar buildAppBar(BuildContext context) {
+    return new AppBar(
+        title: new Text('บันทึกเหตุการณ์'),
+        actions: [searchBar.getSearchAction(context)]);
+  }
+
+  void onSubmitted(String value) {
+    setState(() => _scaffoldKey.currentState
+        .showSnackBar(new SnackBar(content: new Text('You wrote $value!'))));
+  }
+  _Events() {
+    searchBar = new SearchBar(
+        inBar: false,
+        buildDefaultAppBar: buildAppBar,
+        setState: setState,
+        onSubmitted: onSubmitted,
+        onClosed: () {
+          print("closed");
+        });
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
+        // appBar: searchBar.build(context),
         appBar: AppBar(
           title: Text('บันทึกเหตุการณ์'),
         ),
@@ -50,7 +72,6 @@ class _Events extends State<Events> {
                     fullscreenDialog: true,
                   )).then((ManageJobAction result) {
                 action = JobFetchAction.fetch;
-                // fetchJob();
                 JobService.fetchJob(
                     onFetchFinished: onFetchFinished,
                     onfetchTimeout: onFetchTimeout,

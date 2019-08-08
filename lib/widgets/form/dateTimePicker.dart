@@ -39,7 +39,7 @@ class DateTimePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle valueStyle = TextStyle(fontSize: 16);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
         Expanded(
@@ -47,7 +47,7 @@ class DateTimePicker extends StatelessWidget {
           child: _InputDropdown(
             labelText: labelText,
             valueText: new DateFormat('dd-MM-yyyy').format(selectedDate),
-            valueStyle: valueStyle,
+            valueStyle: valueStyle,    
             onPressed: () {
               _selectDate(context);
             },

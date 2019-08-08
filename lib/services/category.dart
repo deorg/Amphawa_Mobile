@@ -1,16 +1,16 @@
 import 'package:amphawa/helper/httpService.dart';
 import 'package:http/http.dart';
 
-class DeptService {
+class CategoryService {
   static const _host = HttpService.host;
-  static const _getDeptUrl = _host + HttpService.getDepartment;
+  static const _getSectUrl = _host + HttpService.getCategory;
 
-  static Future fetchDept(
+  static Future fetchCategory(
       {Function onFetchFinished,
       Function onfetchTimeout,
       Function onFetchError}) async {
         print('fetching');
-    await get(_getDeptUrl)
+    await get(_getSectUrl)
         .then((Response response) {
           onFetchFinished(response);
         })
