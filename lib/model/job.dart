@@ -25,6 +25,7 @@ class Job {
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = new Map<String, dynamic>();
+    json['job_id'] = job_id.toString();
     json['job_date'] = job_date.toString();
     json['job_desc'] = job_desc;
     json['solution'] = solution;

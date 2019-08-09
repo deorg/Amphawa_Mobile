@@ -53,17 +53,17 @@ class DateTimePicker extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(width: 20.0),
-        Expanded(
-          flex: 2,
-          child: _InputDropdown(
-            valueText: selectedTime.format(context),
-            valueStyle: valueStyle,
-            onPressed: () {
-              _selectTime(context);
-            },
-          ),
-        ),
+        // const SizedBox(width: 20.0),
+        // Expanded(
+        //   flex: 2,
+        //   child: _InputDropdown(
+        //     valueText: selectedTime.format(context),
+        //     valueStyle: valueStyle,
+        //     onPressed: () {
+        //       _selectTime(context);
+        //     },
+        //   ),
+        // ),
       ],
     );
   }

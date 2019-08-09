@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:amphawa/model/job.dart';
+import 'package:amphawa/pages/editEvent.dart' as edit;
 import 'package:amphawa/services/jobs.dart';
 import 'package:amphawa/widgets/contact.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,7 @@ class _Events extends State<Events> {
 
   AppBar buildAppBar(BuildContext context) {
     return new AppBar(
-        title: new Text('บันทึกเหตุการณ์'),
+        title: new Text('Job List'),
         actions: [searchBar.getSearchAction(context)]);
   }
 
@@ -43,6 +44,7 @@ class _Events extends State<Events> {
     setState(() => _scaffoldKey.currentState
         .showSnackBar(new SnackBar(content: new Text('You wrote $value!'))));
   }
+
   _Events() {
     searchBar = new SearchBar(
         inBar: false,
@@ -59,7 +61,8 @@ class _Events extends State<Events> {
         key: _scaffoldKey,
         // appBar: searchBar.build(context),
         appBar: AppBar(
-          title: Text('บันทึกเหตุการณ์'),
+          title: Text('Job List'),
+          centerTitle: true,
         ),
         body: _buildActivity(),
         floatingActionButton: FloatingActionButton(
@@ -68,7 +71,7 @@ class _Events extends State<Events> {
               Navigator.push(
                   context,
                   MaterialPageRoute<ManageJobAction>(
-                    builder: (BuildContext context) => ManageEventPage(),
+                    builder: (BuildContext context) => NewEventPage(),
                     fullscreenDialog: true,
                   )).then((ManageJobAction result) {
                 action = JobFetchAction.fetch;
@@ -131,17 +134,36 @@ class _Events extends State<Events> {
           padding: EdgeInsets.symmetric(vertical: 10),
           itemCount: jobs.length,
           itemBuilder: (context, index) {
-            return Container(
+            return IntrinsicHeight(
                 child: Card(
+                  shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
                     child: ListItem(
-                        icon: Icons.photo,
-                        onPressed: () {},
+                        date: jobs[index].job_date,
+                        number: index+1,
+                        icon: Icons.note_add,
+                        onPressed: () {
+                          print('press on ${jobs[index].job_id}');
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute<ManageJobAction>(
+                                builder: (BuildContext context) =>
+                                    edit.EditEventPage(jobs[index]),
+                                fullscreenDialog: true,
+                              )).then((ManageJobAction result) {
+                            action = JobFetchAction.fetch;
+                            JobService.fetchJob(
+                                onFetchFinished: onFetchFinished,
+                                onfetchTimeout: onFetchTimeout,
+                                onFetchError: onFetchError);
+                          });
+                        },
                         lines: <String>[
                       jobs[index].job_desc,
                       jobs[index].solution,
-                      jobs[index].created_by
                     ])),
-                margin: EdgeInsets.only(bottom: 5));
+                );
           },
         ));
     // return ContactCategory(

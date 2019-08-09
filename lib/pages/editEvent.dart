@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:dio/dio.dart' as dio;
 import 'package:amphawa/model/category.dart';
 import 'package:amphawa/model/dept.dart';
 import 'package:amphawa/model/job.dart';
@@ -8,24 +10,23 @@ import 'package:amphawa/services/jobs.dart';
 import 'package:amphawa/services/section.dart';
 import 'package:amphawa/widgets/button/dropdown.dart';
 import 'package:amphawa/widgets/dialog/dialog.dart';
-import 'package:amphawa/widgets/form/chipTile.dart';
 import 'package:amphawa/widgets/form/dateTimePicker.dart';
 import 'package:amphawa/widgets/form/multiSelectChip.dart';
 import 'package:amphawa/widgets/form/myTextField.dart';
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart' as dio;
-import 'dart:convert';
-
 import 'package:http/http.dart';
 
 enum ManageJobAction { ready, readyMore, sent, completed }
 
-class NewEventPage extends StatefulWidget {
+class EditEventPage extends StatefulWidget {
+  final Job job;
+  EditEventPage(this.job);
+
   @override
-  State<StatefulWidget> createState() => _NewEventPage();
+  State<StatefulWidget> createState() => _EditEventPage();
 }
 
-class _NewEventPage extends State<NewEventPage> {
+class _EditEventPage extends State<EditEventPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ManageJobAction _action = ManageJobAction.ready;
   List<String> _dept = ['ไม่ระบุ'];
@@ -34,8 +35,9 @@ class _NewEventPage extends State<NewEventPage> {
   List<String> _categories = ['ไม่ระบุ'];
   List<String> _selectedCate = [];
   String _selectedDept;
+  String _selectedMenuDept;
   String _selectedSect;
-  DateTime _fromDate = DateTime.now();
+  DateTime _fromDate;
   TimeOfDay _fromTime =
       TimeOfDay(hour: DateTime.now().hour, minute: DateTime.now().minute);
   TextEditingController job_desc = new TextEditingController();
@@ -49,6 +51,12 @@ class _NewEventPage extends State<NewEventPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    job_desc.text = widget.job.job_desc;
+    solution.text = widget.job.solution;
+    device_no.text = widget.job.device_no;
+    created_by.text = widget.job.created_by;
+    _fromDate = widget.job.job_date;
+
     DeptService.fetchDept(
         onFetchFinished: onFetchDeptFinished,
         onfetchTimeout: onFetchDeptTimeout,
@@ -64,7 +72,7 @@ class _NewEventPage extends State<NewEventPage> {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('New Event'),
+          title: Text('Edit Job ${widget.job.job_id}'),
           actions: <Widget>[
             IconButton(icon: Icon(Icons.save), iconSize: 28, onPressed: submit)
           ],
@@ -115,6 +123,21 @@ class _NewEventPage extends State<NewEventPage> {
               },
             )
           : SizedBox(height: 0)
+      // _action == ManageJobAction.ready
+      //     ? GestureDetector(
+      //         onTap: () {
+      //           setState(() {
+      //             _action = ManageJobAction.readyMore;
+      //           });
+      //         },
+      //         child: Row(children: <Widget>[
+      //           Text('More',
+      //               style: TextStyle(
+      //                   fontSize: 16,
+      //                   color: Colors.blue,
+      //                   fontWeight: FontWeight.bold))
+      //         ], mainAxisAlignment: MainAxisAlignment.start))
+      //     : SizedBox(height: 0)
     ];
     Widget form = Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
@@ -137,7 +160,8 @@ class _NewEventPage extends State<NewEventPage> {
       formContent.add(Row(children: <Widget>[
         Text('Department', style: TextStyle(fontSize: 16)),
         SizedBox(width: 10),
-        DropdownSimple(label: 'Department', list: _dept, onSelected: onDeptSelected)
+        DropdownSimple(
+            label: 'Department', list: _dept, onSelected: onDeptSelected)
       ]));
       formContent.add(Row(children: <Widget>[
         Text('Section', style: TextStyle(fontSize: 16)),
@@ -145,7 +169,10 @@ class _NewEventPage extends State<NewEventPage> {
         DropdownSimple(
             label: 'Section', list: _sect, onSelected: onSectSelected)
       ]));
-      formContent.add(Row(children: <Widget>[SizedBox(height: 10), Text('Job_Date', style: TextStyle(fontSize: 16))],mainAxisAlignment: MainAxisAlignment.start));
+      formContent.add(Row(children: <Widget>[
+        SizedBox(height: 10),
+        Text('Job Date', style: TextStyle(fontSize: 16))
+      ], mainAxisAlignment: MainAxisAlignment.start));
       formContent.add(Container(
           padding: EdgeInsets.symmetric(horizontal: 0),
           child: DateTimePicker(
@@ -170,24 +197,46 @@ class _NewEventPage extends State<NewEventPage> {
   }
 
   void submit() {
+    String dept_id;
+    String sect_id;
     setState(() {
       _action = ManageJobAction.sent;
       List<String> cate_id = [];
-      _selectedCate.forEach((f){
+      _selectedCate.forEach((f) {
         var res = _rawCate.firstWhere((test) => test.cate_name == f);
         cate_id.add(res.cate_id);
       });
+      if (widget.job.dept_id != null && _selectedDept == null) {
+        dept_id = widget.job.dept_id;
+      } else if (widget.job.dept_id != null && _selectedDept != null) {
+        dept_id = _selectedDept;
+      } else if (widget.job.dept_id == null && _selectedDept != null) {
+        dept_id = _selectedDept;
+      } else {
+        dept_id = _selectedDept;
+      }
+      if (widget.job.sect_id != null && _selectedSect == null) {
+        sect_id = widget.job.sect_id;
+      } else if (widget.job.sect_id != null && _selectedSect != null) {
+        sect_id = _selectedSect;
+      } else if (widget.job.sect_id == null && _selectedSect != null) {
+        sect_id = _selectedSect;
+      } else {
+        sect_id = _selectedSect;
+      }
+
       Job data = new Job(
+          job_id: widget.job.job_id,
           job_date: _fromDate,
           job_desc: job_desc.text,
           solution: solution.text,
           cate_id: cate_id,
-          dept_id: _selectedDept,
-          sect_id: _selectedSect,
+          dept_id: dept_id,
+          sect_id: sect_id,
           device_no: device_no.text,
           created_by: created_by.text);
-      print(data.job_desc);
-      JobService.createJob(
+      print(data.job_id);
+      JobService.updateJob(
           job: data,
           onSending: onSending,
           onSent: onSent,
@@ -209,9 +258,6 @@ class _NewEventPage extends State<NewEventPage> {
     if (res.statusCode == 200) {
       setState(() {
         _action = ManageJobAction.ready;
-        job_desc.clear();
-        solution.clear();
-        device_no.clear();
         Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
       });
     } else {
@@ -356,5 +402,3 @@ class _NewEventPage extends State<NewEventPage> {
     _selectedSect = newValue.split(' ').first;
   }
 }
-
-

@@ -1,7 +1,5 @@
 import 'package:amphawa/pages/events.dart';
 import 'package:amphawa/pages/home2.dart';
-import 'package:amphawa/pages/home3.dart';
-import 'package:amphawa/pages/home4.dart';
 import 'package:amphawa/pages/home5.dart';
 import 'package:amphawa/pages/manageEvent.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +21,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (BuildContext context) => Events(),
         '/login': (BuildContext context) => Login(title: 'Login page'),
-        '/manageJob': (BuildContext context) => ManageEventPage()
+        '/manageJob': (BuildContext context) => NewEventPage()
       },
     );
   }

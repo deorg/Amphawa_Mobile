@@ -56,7 +56,7 @@ class _HomePage5State extends State<HomePage5> {
               Navigator.push(
                   context,
                   MaterialPageRoute<ManageJobAction>(
-                    builder: (BuildContext context) => ManageEventPage(),
+                    builder: (BuildContext context) => NewEventPage(),
                     fullscreenDialog: true,
                   )).then((ManageJobAction result) {
                   action = JobFetchAction.fetch;
