@@ -99,6 +99,9 @@ class _Events extends State<Events> {
         break;
       case JobFetchAction.blank:
         return _buildNoDataUI();
+      default:
+        return _buildNoDataUI();
+        break;
     }
   }
 
