@@ -83,8 +83,8 @@ class Alert {
       {BuildContext context,
       String title,
       Widget content,
-      List<String> buttons}) async {
-    return await showDialog<String>(
+      List<String> buttons}) {
+    return showDialog<String>(
           barrierDismissible: false,
           context: context,
           builder: (BuildContext context) {
@@ -111,8 +111,7 @@ class Alert {
                       .toList(),
             );
           },
-        ) ??
-        '';
+        );
   }
 
   static Future<String> dialogWithListItem(

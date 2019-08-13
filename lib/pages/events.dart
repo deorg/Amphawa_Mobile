@@ -3,6 +3,7 @@ import 'package:amphawa/model/job.dart';
 import 'package:amphawa/pages/editEvent.dart' as edit;
 import 'package:amphawa/services/jobs.dart';
 import 'package:amphawa/widgets/contact.dart';
+import 'package:amphawa/widgets/dialog/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
@@ -137,47 +138,102 @@ class _Events extends State<Events> {
           padding: EdgeInsets.symmetric(vertical: 10),
           itemCount: jobs.length,
           itemBuilder: (context, index) {
-            return IntrinsicHeight(
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15.0),
-              ),
-                    child: ListItem(
-                        date: jobs[index].job_date,
-                        number: index+1,
-                        icon: Icons.note_add,
-                        onPressed: () {
-                          print('press on ${jobs[index].job_id}');
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute<ManageJobAction>(
-                                builder: (BuildContext context) =>
-                                    edit.EditEventPage(jobs[index]),
-                                fullscreenDialog: true,
-                              )).then((ManageJobAction result) {
-                            action = JobFetchAction.fetch;
-                            JobService.fetchJob(
-                                onFetchFinished: onFetchFinished,
-                                onfetchTimeout: onFetchTimeout,
-                                onFetchError: onFetchError);
-                          });
-                        },
-                        lines: <String>[
-                      jobs[index].job_desc,
-                      jobs[index].solution,
-                    ])),
-                );
-          },
+            List<String> lines = [];
+            if (jobs[index].job_desc != null) lines.add(jobs[index].job_desc);
+            if (jobs[index].solution != "")
+              lines.add("Solution: " + jobs[index].solution);
+            if (jobs[index].cate_id != null)
+              lines.add("Category: " + jobs[index].cate_id.join(", "));
+            if (jobs[index].dept_id != "")
+              lines.add("Department: " + jobs[index].dept_id);
+            if (jobs[index].sect_id != "")
+              lines.add("Section: " + jobs[index].sect_id);
+
+            return Dismissible(
+                key: Key(jobs[index].job_id.toString()),
+                background: Container(
+                    color: Colors.green[100],
+                    child: Padding(
+                        padding: EdgeInsets.only(left: 30),
+                        child: Align(
+                            child: Icon(Icons.check_circle,
+                                color: Colors.green, size: 52),
+                            alignment: Alignment.centerLeft))),
+                secondaryBackground: Container(
+                    color: Colors.red[100],
+                    child: Padding(
+                        padding: EdgeInsets.only(right: 30),
+                        child: Align(
+                            child:
+                                Icon(Icons.delete, color: Colors.red, size: 52),
+                            alignment: Alignment.centerRight))),
+                onDismissed: (direction) {
+                  if (direction == DismissDirection.endToStart) {
+                    setState(() {
+                      jobs.removeAt(index);
+                    });
+                  } else {
+                    setState(() {
+                      jobs.removeAt(index);
+                    });
+                  }
+                },
+                confirmDismiss: (direction) async {
+                  if (direction == DismissDirection.endToStart) {
+                    var res = await Alert.dialogWithUiContent(
+                        context: context,
+                        title: 'Delete job ${jobs[index].job_id}',
+                        content:
+                            Text("Are you sure you want to delete this job?"),
+                        buttons: ['Yes', 'No']);
+                    if(res == 'Yes')
+                      return true;
+                      else return false;
+                  }
+                  else if(direction == DismissDirection.startToEnd){
+                    var res = await Alert.dialogWithUiContent(
+                        context: context,
+                        title: 'Mark to finished job ${jobs[index].job_id}',
+                        content:
+                            Text("Are you sure you want to finished this job?"),
+                        buttons: ['Yes', 'No']);
+                    if(res == 'Yes')
+                      return true;
+                      else return false;
+                  }
+                  else
+                   return false;
+                },
+                child: IntrinsicHeight(
+                  child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15.0),
+                      ),
+                      child: InkWell(
+                          child: ListItem(
+                              date: jobs[index].job_date,
+                              number: index + 1,
+                              icon: Icons.note_add,
+                              lines: lines),
+                          onTap: () {
+                            print('press on ${jobs[index].job_id}');
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute<ManageJobAction>(
+                                  builder: (BuildContext context) =>
+                                      edit.EditEventPage(jobs[index]),
+                                  fullscreenDialog: true,
+                                )).then((ManageJobAction result) {
+                              action = JobFetchAction.fetch;
+                              JobService.fetchJob(
+                                  onFetchFinished: onFetchFinished,
+                                  onfetchTimeout: onFetchTimeout,
+                                  onFetchError: onFetchError);
+                            });
+                          })),
+                ));
+          }
         ));
-    // return ContactCategory(
-    //     title: 'ซ่อม',
-    //     icon: Icons.build,
-    //     children: repairs
-    //         .map((j) => ContactItem(
-    //             icon: Icons.photo,
-    //             onPressed: () {},
-    //             lines: <String>[j.job_desc, j.solution, j.created_by]))
-    //         .toList());
   }
 
   Widget _buildFetchTimeoutUI() {
@@ -189,7 +245,7 @@ class _Events extends State<Events> {
   }
 
   Widget _buildNoDataUI() {
-    return Center(child: Text('ไม่พบข้อมูล'));
+    return Center(child: Text('ไม่พบข้อมู���'));
   }
 
   void onFetchFinished(Response response) {

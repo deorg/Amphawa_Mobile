@@ -104,8 +104,8 @@ class ListItem extends StatelessWidget {
       this.tooltip,
       this.onPressed,
       this.number})
-      : assert(lines.length > 1),
-        super(key: key);
+      // : assert(lines.length > 1),
+        : super(key: key);
 
   final DateTime date;
   final IconData icon;
@@ -146,7 +146,7 @@ class ListItem extends StatelessWidget {
               child: Text(number.toString(),
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold)),
             ))
           ])),

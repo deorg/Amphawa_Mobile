@@ -71,12 +71,13 @@ class _EditEventPage extends State<EditEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text('Edit Job ${widget.job.job_id}'),
-          actions: <Widget>[
-            IconButton(icon: Icon(Icons.save), iconSize: 28, onPressed: submit)
-          ],
-        ),
+        // appBar: AppBar(
+        //   title: Text('Edit Job ${widget.job.job_id}'),
+        //   actions: <Widget>[
+        //     IconButton(icon: Icon(Icons.save), iconSize: 28, onPressed: submit)
+        //   ],
+        // ),
+        backgroundColor: Color(0xFF828DAA),
         body: SingleChildScrollView(child: _buildJobFormUI()));
   }
 
@@ -123,25 +124,10 @@ class _EditEventPage extends State<EditEventPage> {
               },
             )
           : SizedBox(height: 0)
-      // _action == ManageJobAction.ready
-      //     ? GestureDetector(
-      //         onTap: () {
-      //           setState(() {
-      //             _action = ManageJobAction.readyMore;
-      //           });
-      //         },
-      //         child: Row(children: <Widget>[
-      //           Text('More',
-      //               style: TextStyle(
-      //                   fontSize: 16,
-      //                   color: Colors.blue,
-      //                   fontWeight: FontWeight.bold))
-      //         ], mainAxisAlignment: MainAxisAlignment.start))
-      //     : SizedBox(height: 0)
     ];
     Widget form = Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(children: formContent));
+        child: Card(child: Column(children: formContent)));
     if (_action == ManageJobAction.sent) {
       column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
     }
