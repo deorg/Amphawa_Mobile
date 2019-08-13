@@ -28,7 +28,8 @@ class MyTextField extends StatelessWidget {
           controller: this.controller,
           enabled: this.enabled,
           decoration: InputDecoration(
-            contentPadding: EdgeInsets.symmetric(vertical: 5),
+            fillColor: Colors.white,
+            contentPadding: EdgeInsets.symmetric(vertical: 10),
             filled: this.filled,
             icon: this.icon,
             suffixIcon: this.suffixIcon,
@@ -37,6 +38,7 @@ class MyTextField extends StatelessWidget {
             border: this.border
           ),
           maxLines: this.maxLines,
+          textAlignVertical: TextAlignVertical.bottom,
           style: this.textStyle);
   }
 }

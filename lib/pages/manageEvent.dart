@@ -28,6 +28,7 @@ class NewEventPage extends StatefulWidget {
 class _NewEventPage extends State<NewEventPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ManageJobAction _action = ManageJobAction.ready;
+  List<String> _status = ['ACTIVE', 'FINISHED', 'FAIL'];
   List<String> _dept = ['ไม่ระบุ'];
   List<String> _sect = ['ไม่ระบุ'];
   List<Category> _rawCate = [];
@@ -63,13 +64,14 @@ class _NewEventPage extends State<NewEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        appBar: AppBar(
-          title: Text('New Event'),
-          actions: <Widget>[
-            IconButton(icon: Icon(Icons.save), iconSize: 28, onPressed: submit)
-          ],
-        ),
-        body: SingleChildScrollView(child: _buildJobFormUI()));
+        // appBar: AppBar(
+        //   title: Text('New Event'),
+        //   actions: <Widget>[
+        //     IconButton(icon: Icon(Icons.save), iconSize: 28, onPressed: submit)
+        //   ],
+        // ),
+        backgroundColor: Color(0xFF828DAA),
+        body: Center(child: SingleChildScrollView(child: _buildJobFormUI())));
   }
 
   String _capitalize(String name) {
@@ -79,101 +81,246 @@ class _NewEventPage extends State<NewEventPage> {
 
   Widget _buildJobFormUI() {
     List<Widget> column = [];
+    column.add(Container(
+        decoration: BoxDecoration(
+            color: Color(0xFF57607B),
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(15), topRight: Radius.circular(15))),
+        padding: EdgeInsets.symmetric(vertical: 10),
+        child: Stack(children: <Widget>[
+          Center(
+              child: Text('New Job',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold))),
+          Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Align(
+                  child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child:
+                          Icon(Icons.backspace, color: Colors.white, size: 28)),
+                  alignment: Alignment.centerRight))
+        ]),
+        alignment: Alignment.center));
     List<Widget> formContent = [
-      SizedBox(height: 20),
+      SizedBox(height: 10),
       MyTextField(
-          controller: job_desc, label: 'Description', icon: Icon(Icons.title)),
-      SizedBox(height: 20.0),
+          controller: job_desc,
+          label: 'Description',
+          prefixIcon: Icon(Icons.note_add),
+          border: OutlineInputBorder(),
+          filled: true),
+      SizedBox(height: 10.0),
       MyTextField(
           controller: solution,
           label: 'Solution',
-          icon: Icon(Icons.note_add),
-          maxLines: 3),
-      SizedBox(height: 20.0),
+          prefixIcon: Icon(Icons.edit),
+          border: OutlineInputBorder(),
+          maxLines: 3,
+          filled: true),
+      SizedBox(height: 10.0),
       MyTextField(
           controller: device_no,
-          icon: Icon(Icons.devices),
-          label: 'Device No.'),
-      SizedBox(height: 20),
-      MyTextField(
-          controller: created_by,
-          icon: Icon(Icons.supervised_user_circle),
-          label: 'Created by',
-          enabled: false),
-      SizedBox(height: 20),
-      _action == ManageJobAction.ready
-          ? FlatButton.icon(
-              icon: const Icon(Icons.add_circle_outline,
-                  size: 24, color: Colors.blue),
-              label: const Text('More',
-                  semanticsLabel: 'More',
-                  style: TextStyle(fontSize: 20, color: Colors.blue)),
-              onPressed: () {
-                setState(() {
-                  _action = ManageJobAction.readyMore;
-                });
-              },
-            )
-          : SizedBox(height: 0)
+          prefixIcon: Icon(Icons.devices),
+          label: 'Device No.',
+          border: OutlineInputBorder(),
+          filled: true),
+      SizedBox(height: 10),
+      Container(
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(10)),
+          padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          // color: Colors.white,
+          child: Column(children: <Widget>[
+            Column(children: <Widget>[
+              Row(children: <Widget>[
+                SizedBox(
+                    width: 85,
+                    child: Text('Status', style: TextStyle(fontSize: 16))),
+                SizedBox(width: 20),
+                DropdownSimple(
+                    label: 'Department',
+                    list: _status,
+                    onSelected: onDeptSelected)
+              ]),
+              Row(children: <Widget>[
+                GestureDetector(
+                    child: SizedBox(
+                        width: 85,
+                        child:
+                            Text('Category', style: TextStyle(fontSize: 16))),
+                    onTap: () {
+                      _showCategoriesDialog();
+                    }),
+                SizedBox(width: 20),
+                DropdownSimple(
+                    label: 'Category',
+                    list: _categories,
+                    onSelected: onCateSelected)
+              ]),
+              Row(children: <Widget>[
+                Text('Department', style: TextStyle(fontSize: 16)),
+                SizedBox(width: 20),
+                DropdownSimple(
+                    label: 'Department',
+                    list: _dept,
+                    onSelected: onDeptSelected)
+              ]),
+              Row(children: <Widget>[
+                SizedBox(
+                    width: 85,
+                    child: Text('Section', style: TextStyle(fontSize: 16))),
+                SizedBox(width: 20),
+                DropdownSimple(
+                    label: 'Section', list: _sect, onSelected: onSectSelected)
+              ]),
+              Row(children: <Widget>[
+                SizedBox(height: 10),
+                Text('Job Date', style: TextStyle(fontSize: 16)),
+              ], mainAxisAlignment: MainAxisAlignment.start),
+              Container(
+                  padding: EdgeInsets.symmetric(horizontal: 0),
+                  child: DateTimePicker(
+                    selectedDate: _fromDate,
+                    selectedTime: _fromTime,
+                    selectDate: (DateTime date) {
+                      setState(() {
+                        _fromDate = date;
+                      });
+                    },
+                    selectTime: (TimeOfDay time) {
+                      setState(() {
+                        _fromTime = time;
+                      });
+                    },
+                  )),
+              SizedBox(height: 10),
+              Center(
+                  child: RaisedButton(
+                      child: Text('Save',
+                          style: TextStyle(color: Colors.white, fontSize: 20)),
+                      onPressed: submit,
+                      color: Colors.green[400]))
+            ])
+          ]))
     ];
     Widget form = Container(
-        padding: EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+            color: Color(0xFFEAEFFB), borderRadius: BorderRadius.circular(15)),
+        padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
         child: Column(children: formContent));
     if (_action == ManageJobAction.sent) {
       column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
     }
-    if (_action == ManageJobAction.readyMore) {
-      // formContent.add(ChipsTile(label: 'ประเภท', children: ));
-      formContent.add(Row(children: <Widget>[
-        GestureDetector(
-            child: Text('Category', style: TextStyle(fontSize: 16)),
-            onTap: () {
-              _showCategoriesDialog();
-            }),
-        SizedBox(width: 10),
-        DropdownSimple(
-            label: 'Category', list: _categories, onSelected: onCateSelected)
-      ]));
-      formContent.add(Row(children: <Widget>[
-        Text('Department', style: TextStyle(fontSize: 16)),
-        SizedBox(width: 10),
-        DropdownSimple(label: 'Department', list: _dept, onSelected: onDeptSelected)
-      ]));
-      formContent.add(Row(children: <Widget>[
-        Text('Section', style: TextStyle(fontSize: 16)),
-        SizedBox(width: 10),
-        DropdownSimple(
-            label: 'Section', list: _sect, onSelected: onSectSelected)
-      ]));
-      formContent.add(Row(children: <Widget>[SizedBox(height: 10), Text('Job_Date', style: TextStyle(fontSize: 16))],mainAxisAlignment: MainAxisAlignment.start));
-      formContent.add(Container(
-          padding: EdgeInsets.symmetric(horizontal: 0),
-          child: DateTimePicker(
-            // labelText: 'เหตุการณ์ ณ เวลา',
-            selectedDate: _fromDate,
-            selectedTime: _fromTime,
-            selectDate: (DateTime date) {
-              setState(() {
-                _fromDate = date;
-              });
-            },
-            selectTime: (TimeOfDay time) {
-              setState(() {
-                _fromTime = time;
-              });
-            },
-          )));
-      formContent.add(SizedBox(height: 20));
-    }
     column.add(form);
-    return Column(children: column);
+    return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 10),
+        child: Card(
+            child: Column(
+                children: column,
+                crossAxisAlignment: CrossAxisAlignment.stretch),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15))));
   }
+  // Widget _buildJobFormUI() {
+  //   List<Widget> column = [];
+  //   List<Widget> formContent = [
+  //     SizedBox(height: 20),
+  //     MyTextField(
+  //         controller: job_desc, label: 'Description', icon: Icon(Icons.title)),
+  //     SizedBox(height: 20.0),
+  //     MyTextField(
+  //         controller: solution,
+  //         label: 'Solution',
+  //         icon: Icon(Icons.note_add),
+  //         maxLines: 3),
+  //     SizedBox(height: 20.0),
+  //     MyTextField(
+  //         controller: device_no,
+  //         icon: Icon(Icons.devices),
+  //         label: 'Device No.'),
+  //     SizedBox(height: 20),
+  //     MyTextField(
+  //         controller: created_by,
+  //         icon: Icon(Icons.supervised_user_circle),
+  //         label: 'Created by',
+  //         enabled: false),
+  //     SizedBox(height: 20),
+  //     _action == ManageJobAction.ready
+  //         ? FlatButton.icon(
+  //             icon: const Icon(Icons.add_circle_outline,
+  //                 size: 24, color: Colors.blue),
+  //             label: const Text('More',
+  //                 semanticsLabel: 'More',
+  //                 style: TextStyle(fontSize: 20, color: Colors.blue)),
+  //             onPressed: () {
+  //               setState(() {
+  //                 _action = ManageJobAction.readyMore;
+  //               });
+  //             },
+  //           )
+  //         : SizedBox(height: 0)
+  //   ];
+  //   Widget form = Container(
+  //       padding: EdgeInsets.symmetric(horizontal: 20),
+  //       child: Column(children: formContent));
+  //   if (_action == ManageJobAction.sent) {
+  //     column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
+  //   }
+  //   if (_action == ManageJobAction.readyMore) {
+  //     // formContent.add(ChipsTile(label: 'ประเภท', children: ));
+  //     formContent.add(Row(children: <Widget>[
+  //       GestureDetector(
+  //           child: Text('Category', style: TextStyle(fontSize: 16)),
+  //           onTap: () {
+  //             _showCategoriesDialog();
+  //           }),
+  //       SizedBox(width: 10),
+  //       DropdownSimple(
+  //           label: 'Category', list: _categories, onSelected: onCateSelected)
+  //     ]));
+  //     formContent.add(Row(children: <Widget>[
+  //       Text('Department', style: TextStyle(fontSize: 16)),
+  //       SizedBox(width: 10),
+  //       DropdownSimple(label: 'Department', list: _dept, onSelected: onDeptSelected)
+  //     ]));
+  //     formContent.add(Row(children: <Widget>[
+  //       Text('Section', style: TextStyle(fontSize: 16)),
+  //       SizedBox(width: 10),
+  //       DropdownSimple(
+  //           label: 'Section', list: _sect, onSelected: onSectSelected)
+  //     ]));
+  //     formContent.add(Row(children: <Widget>[SizedBox(height: 10), Text('Job_Date', style: TextStyle(fontSize: 16))],mainAxisAlignment: MainAxisAlignment.start));
+  //     formContent.add(Container(
+  //         padding: EdgeInsets.symmetric(horizontal: 0),
+  //         child: DateTimePicker(
+  //           // labelText: 'เหตุการณ์ ณ เวลา',
+  //           selectedDate: _fromDate,
+  //           selectedTime: _fromTime,
+  //           selectDate: (DateTime date) {
+  //             setState(() {
+  //               _fromDate = date;
+  //             });
+  //           },
+  //           selectTime: (TimeOfDay time) {
+  //             setState(() {
+  //               _fromTime = time;
+  //             });
+  //           },
+  //         )));
+  //     formContent.add(SizedBox(height: 20));
+  //   }
+  //   column.add(form);
+  //   return Column(children: column);
+  // }
 
   void submit() {
     setState(() {
       _action = ManageJobAction.sent;
       List<String> cate_id = [];
-      _selectedCate.forEach((f){
+      _selectedCate.forEach((f) {
         var res = _rawCate.firstWhere((test) => test.cate_name == f);
         cate_id.add(res.cate_id);
       });
@@ -356,5 +503,3 @@ class _NewEventPage extends State<NewEventPage> {
     _selectedSect = newValue.split(' ').first;
   }
 }
-
-
