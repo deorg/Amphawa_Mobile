@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:amphawa/widgets/dialog/dialogListItem.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:amphawa/model/category.dart';
 import 'package:amphawa/model/dept.dart';
@@ -31,10 +32,10 @@ class _EditEventPage extends State<EditEventPage> {
   ManageJobAction _action = ManageJobAction.ready;
   bool _completed = true;
   String _status = 'Completed';
-  List<String> _dept = ['ไม่ระบุ'];
-  List<String> _sect = ['ไม่ระบุ'];
+  List<String> _dept = [];
+  List<String> _sect = [];
   List<Category> _rawCate = [];
-  List<String> _categories = ['ไม่ระบุ'];
+  List<String> _categories = [];
   List<String> _selectedCate = [];
   String _selectedDept;
   String _selectedSect;
@@ -47,7 +48,11 @@ class _EditEventPage extends State<EditEventPage> {
   TextEditingController created_by =
       new TextEditingController(text: 'Nuttapat Chaiprapun');
   TextEditingController date_time = new TextEditingController();
-  Color fillColor = Colors.lightBlue[100];//Color(0xFFE5EEED);
+  TextEditingController category = new TextEditingController();
+  TextEditingController department = new TextEditingController();
+  TextEditingController section = new TextEditingController();
+
+  Color fillColor = Colors.teal[100]; //Color(0xFFE5EEED);
   double _progress = 0;
 
   @override
@@ -125,7 +130,38 @@ class _EditEventPage extends State<EditEventPage> {
         ]),
         alignment: Alignment.center));
     List<Widget> formContent = [
-      SizedBox(height: 10),
+      Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+        GestureDetector(
+            child: Text(_status, style: TextStyle(fontSize: 18)),
+            onTap: () {
+              setState(() {
+                _completed = !_completed;
+                if (_completed)
+                  _status = 'Completed';
+                else
+                  _status = 'In Progress';
+              });
+            }),
+        SizedBox(width: 8),
+        Transform.scale(
+            scale: 1.5,
+            child: Switch(
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+                value: _completed,
+                onChanged: (value) {
+                  print(value);
+                  setState(() {
+                    _completed = value;
+                    if (_completed)
+                      _status = 'Completed';
+                    else
+                      _status = 'In Progress';
+                  });
+                },
+                inactiveTrackColor: Color(0xFF77BCE1),
+                activeColor: Colors.green))
+      ]),
+      SizedBox(height: 5),
       MyTextField(
           controller: job_desc,
           label: 'Description',
@@ -152,136 +188,152 @@ class _EditEventPage extends State<EditEventPage> {
           decoration: BoxDecoration(
               color: Colors.indigo[50],
               borderRadius: BorderRadius.circular(10)),
-          padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
           // color: Colors.white,
           child: Column(children: <Widget>[
             Column(children: <Widget>[
-              Row(children: <Widget>[
-                SizedBox(
-                    width: 85,
-                    child: GestureDetector(
-                        child: Text(_status, style: TextStyle(fontSize: 16, backgroundColor:  fillColor)),
-                        onTap: () {
-                          setState(() {
-                            _completed = !_completed;
-                            if (_completed)
-                              _status = 'Completed';
-                            else
-                              _status = 'In Progress';
-                          });
-                        })),
-                SizedBox(width: 8),
-                Container(color: fillColor, child: Transform.scale(
-                    scale: 1.5,
-                    child: Switch(
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        value: _completed,
-                        onChanged: (value) {
-                          print(value);
-                          setState(() {
-                            _completed = value;
-                            if (_completed)
-                              _status = 'Completed';
-                            else
-                              _status = 'In Progress';
-                          });
-                        },
-                        inactiveTrackColor: Color(0xFF77BCE1),
-                        activeColor: Colors.green)))
-                // DropdownSimple(
-                //     label: 'Department',
-                //     list: _status,
-                //     onSelected: onDeptSelected)
-              ]),
-              Row(children: <Widget>[
-                GestureDetector(
-                    child: SizedBox(
-                        width: 85,
-                        child:
-                            Text('Category', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
-                    onTap: () {
-                      _showCategoriesDialog();
-                    }),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DropdownSimple(
-                    label: 'Category',
-                    list: _categories,
-                    onSelected: onCateSelected))
-              ]),
-              Row(children: <Widget>[
-                Text('Department', style: TextStyle(fontSize: 16, backgroundColor: fillColor)),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DropdownSimple(
-                    label: 'Department',
-                    list: _dept,
-                    onSelected: onDeptSelected))
-              ]),
-              Row(children: <Widget>[
-                SizedBox(
-                    width: 85,
-                    child: Text('Section', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DropdownSimple(
-                    label: 'Section', list: _sect, onSelected: onSectSelected))
-              ]),
               // Row(children: <Widget>[
-              //   SizedBox(height: 10),
-              //   Text('Job Date', style: TextStyle(fontSize: 16)),
-              // ], mainAxisAlignment: MainAxisAlignment.start),
-              Row(children: <Widget>[
-                SizedBox(
-                    width: 85,
-                    child: Text('Job Date', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DateTimePicker(
+              //   GestureDetector(
+              //       child: SizedBox(
+              //           width: 85,
+              //           child:
+              //               Text('Category', style: TextStyle(fontSize: 16))),
+              //       onTap: () {
+              //         _showCategoriesDialog();
+              //       }),
+              //   SizedBox(width: 20),
+              //   DropdownSimple(
+              //       label: 'Category',
+              //       list: _categories,
+              //       onSelected: onCateSelected)
+              // ]),
+              GestureDetector(
+                  child: AbsorbPointer(
+                      child: MyTextField(
+                          controller: category,
+                          label: 'Category',
+                          prefixIcon: Icon(Icons.category),
+                          fillColor: fillColor,
+                          filled: true,
+                          enabled: false)),
+                  onTap: () {
+                    Alert.dialogWithListItem(
+                            context: context,
+                            title: 'Category',
+                            list: _categories.map((d) {
+                              return DialogListItem(
+                                  icon: Icons.category,
+                                  text: d,
+                                  onPressed: () {
+                                    Navigator.pop(context, d);
+                                  });
+                            }).toList())
+                        .then((onValue) {
+                      print(onValue);
+                      if (onValue != null) {
+                        onCateSelected(onValue);
+                        category.text = onValue;
+                      }
+                    });
+                  }),
+                  SizedBox(height: 10),
+              // Row(children: <Widget>[
+              //   Text('Department', style: TextStyle(fontSize: 16)),
+              //   SizedBox(width: 20),
+              //   DropdownSimple(
+              //       label: 'Department',
+              //       list: _dept,
+              //       onSelected: onDeptSelected)
+              // ]),
+              GestureDetector(
+                  child: AbsorbPointer(
+                      child: MyTextField(
+                        controller: department,
+                          label: 'Department',
+                          prefixIcon: Icon(Icons.people),
+                          fillColor: fillColor,
+                          filled: true,
+                          enabled: false)),
+                  onTap: () {
+                    if (_dept != null) {
+                      Alert.dialogWithListItem(
+                              context: context,
+                              title: 'Department',
+                              list: _dept.map((d) {
+                                return DialogListItem(
+                                    icon: Icons.people,
+                                    text: d,
+                                    onPressed: () {
+                                      Navigator.pop(context, d);
+                                    });
+                              }).toList())
+                          .then((onValue) {
+                        print(onValue);
+                        if (onValue != null) {
+                          onDeptSelected(onValue);
+                          department.text = onValue;
+                        }
+                      });
+                    }
+                  }),
+                  SizedBox(height: 10),
+              // Row(children: <Widget>[
+              //   SizedBox(
+              //       width: 85,
+              //       child: Text('Section', style: TextStyle(fontSize: 16))),
+              //   SizedBox(width: 20),
+              //   DropdownSimple(
+              //       label: 'Section', list: _sect, onSelected: onSectSelected)
+              // ]),
+              GestureDetector(
+                  child: AbsorbPointer(
+                      child: MyTextField(
+                        controller: section,
+                          label: 'Section',
+                          prefixIcon: Icon(Icons.perm_identity),
+                          fillColor: fillColor,
+                          filled: true,
+                          enabled: false)),
+                  onTap: () {
+                    if (_sect.length > 0) {
+                      Alert.dialogWithListItem(
+                              context: context,
+                              title: 'Section',
+                              list: _sect.map((d) {
+                                return DialogListItem(
+                                    icon: Icons.perm_identity,
+                                    text: d,
+                                    onPressed: () {
+                                      Navigator.pop(context, d);
+                                    });
+                              }).toList())
+                          .then((onValue) {
+                        print(onValue);
+                        if (onValue != null) {
+                          onSectSelected(onValue);
+                          section.text = onValue;
+                        }
+                      });
+                    }
+                  }),
+                  SizedBox(height: 10),
+              DateTimePicker(
                   controller: date_time,
+                  fillColor: fillColor,
                   selectedDate: _fromDate,
                   selectedTime: _fromTime,
-                  selectDate: (DateTime date){
+                  selectDate: (DateTime date) {
                     setState(() {
                       _fromDate = date;
                     });
                   },
                   selectTime: (TimeOfDay time) {
-                      setState(() {
-                        _fromTime = time;
-                      });
-                    }
-                ))
-              ]),
-              // Container(
-              //     padding: EdgeInsets.symmetric(horizontal: 0),
-              //     child: DateTimePicker(
-              //       controller: date_time,
-              //       selectedDate: _fromDate,
-              //       selectedTime: _fromTime,
-              //       selectDate: (DateTime date) {
-              //         setState(() {
-              //           _fromDate = date;
-              //         });
-              //       },
-              //       selectTime: (TimeOfDay time) {
-              //         setState(() {
-              //           _fromTime = time;
-              //         });
-              //       },
-              //     ))
+                    setState(() {
+                      _fromTime = time;
+                    });
+                  })
             ])
           ]))
-      // _action == ManageJobAction.ready
-      //     ? FlatButton.icon(
-      //         icon: const Icon(Icons.add_circle_outline,
-      //             size: 24, color: Colors.blue),
-      //         label: const Text('More',
-      //             semanticsLabel: 'More',
-      //             style: TextStyle(fontSize: 20, color: Colors.blue)),
-      //         onPressed: () {
-      //           setState(() {
-      //             _action = ManageJobAction.readyMore;
-      //           });
-      //         },
-      //       )
-      //     : SizedBox(height: 0)
     ];
     Widget form = Container(
         decoration: BoxDecoration(
@@ -294,51 +346,6 @@ class _EditEventPage extends State<EditEventPage> {
     if (_action == ManageJobAction.sent) {
       column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
     }
-    // if (_action == ManageJobAction.readyMore) {
-    //   formContent.add(Row(children: <Widget>[
-    //     GestureDetector(
-    //         child: Text('Category', style: TextStyle(fontSize: 16)),
-    //         onTap: () {
-    //           _showCategoriesDialog();
-    //         }),
-    //     SizedBox(width: 10),
-    //     DropdownSimple(
-    //         label: 'Category', list: _categories, onSelected: onCateSelected)
-    //   ]));
-    //   formContent.add(Row(children: <Widget>[
-    //     Text('Department', style: TextStyle(fontSize: 16)),
-    //     SizedBox(width: 10),
-    //     DropdownSimple(
-    //         label: 'Department', list: _dept, onSelected: onDeptSelected)
-    //   ]));
-    //   formContent.add(Row(children: <Widget>[
-    //     Text('Section', style: TextStyle(fontSize: 16)),
-    //     SizedBox(width: 10),
-    //     DropdownSimple(
-    //         label: 'Section', list: _sect, onSelected: onSectSelected)
-    //   ]));
-    //   formContent.add(Row(children: <Widget>[
-    //     SizedBox(height: 10),
-    //     Text('Job Date', style: TextStyle(fontSize: 16))
-    //   ], mainAxisAlignment: MainAxisAlignment.start));
-    //   formContent.add(Container(
-    //       padding: EdgeInsets.symmetric(horizontal: 0),
-    //       child: DateTimePicker(
-    //         selectedDate: _fromDate,
-    //         selectedTime: _fromTime,
-    //         selectDate: (DateTime date) {
-    //           setState(() {
-    //             _fromDate = date;
-    //           });
-    //         },
-    //         selectTime: (TimeOfDay time) {
-    //           setState(() {
-    //             _fromTime = time;
-    //           });
-    //         },
-    //       )));
-    //   formContent.add(SizedBox(height: 20));
-    // }
     column.add(form);
     return Padding(
         padding: EdgeInsets.symmetric(horizontal: 10),
@@ -421,7 +428,7 @@ class _EditEventPage extends State<EditEventPage> {
       print(json.decode(res.data));
       setState(() {
         _action = ManageJobAction.ready;
-        Alert.snackBar(_scaffoldKey, 'ไม่สามารถบันทีกข้อมูลได้');
+        Alert.snackBar(_scaffoldKey, 'ไม่สามารถบันทีก���้อมูลได้');
       });
     }
   }
@@ -447,7 +454,7 @@ class _EditEventPage extends State<EditEventPage> {
       List<dynamic> res = json.decode(response.body);
       if (res.length > 0) {
         _dept.clear();
-        _dept.add('ไม่ระบุ');
+        // _dept.add('ไม่ระบุ');
         res.forEach((f) {
           _dept
               .add('${Dept.fromJson(f).dept_id} ${Dept.fromJson(f).dept_name}');
@@ -469,7 +476,7 @@ class _EditEventPage extends State<EditEventPage> {
       List<dynamic> res = json.decode(response.body);
       if (res.length > 0) {
         _sect.clear();
-        _sect.add('ไม่ระบุ');
+        // _sect.add('ไม่ระบุ');
         res.forEach((f) {
           _sect
               .add('${Sect.fromJson(f).sect_id} ${Sect.fromJson(f).sect_name}');
@@ -495,7 +502,7 @@ class _EditEventPage extends State<EditEventPage> {
       if (res.length > 0) {
         _categories.clear();
         _rawCate.clear();
-        _categories.add('ไม่ระบุ');
+        // _categories.add('ไม่ระบุ');
         res.forEach((f) {
           _categories.add(Category.fromJson(f).cate_name.toString());
           _rawCate.add(Category.fromJson(f));
@@ -542,7 +549,8 @@ class _EditEventPage extends State<EditEventPage> {
 
   void onDeptSelected(String newValue) {
     print('select $newValue');
-    if (newValue != 'ไม่ระบุ') {
+    // if (newValue != 'ไม่ระบุ') {
+    if (newValue != null) {
       _selectedDept = newValue.split(' ').first;
       SectService.fetchSect(
           dept_id: _selectedDept,

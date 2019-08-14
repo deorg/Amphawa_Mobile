@@ -22,26 +22,27 @@ class MyTextField extends StatelessWidget {
       this.filled,
       this.fillColor,
       this.border,
-      this.textStyle, this.enabled});
+      this.textStyle,
+      this.enabled});
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-          controller: this.controller,
-          enabled: this.enabled,
-          decoration: InputDecoration(
+        controller: this.controller,
+        enabled: this.enabled,
+        decoration: InputDecoration(
             fillColor: this.fillColor,
             contentPadding: EdgeInsets.symmetric(vertical: 10),
             filled: this.filled,
             icon: this.icon,
             suffixIcon: this.suffixIcon,
             prefixIcon: this.prefixIcon,
-            // labelText: this.label,
-            hintText: this.label,
+            labelText: this.label,
+            // hintText: this.label,
             border: InputBorder.none
-          ),
-          maxLines: this.maxLines,
-          // textAlignVertical: TextAlignVertical.bottom,
-          style: this.textStyle);
+            ),
+        maxLines: this.maxLines,
+        // textAlignVertical: TextAlignVertical.bottom,
+        style: this.textStyle);
   }
 }

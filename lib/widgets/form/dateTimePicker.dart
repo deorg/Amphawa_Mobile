@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'myTextField.dart';
+
 class DateTimePicker extends StatelessWidget {
-  const DateTimePicker({
-    Key key,
-    this.controller,
-    this.labelText,
-    this.selectedDate,
-    this.selectedTime,
-    this.selectDate,
-    this.selectTime,
-  }) : super(key: key);
+  const DateTimePicker(
+      {Key key,
+      this.controller,
+      this.labelText,
+      this.selectedDate,
+      this.selectedTime,
+      this.selectDate,
+      this.selectTime,
+      this.fillColor})
+      : super(key: key);
 
   final String labelText;
   final TextEditingController controller;
@@ -18,6 +21,7 @@ class DateTimePicker extends StatelessWidget {
   final TimeOfDay selectedTime;
   final ValueChanged<DateTime> selectDate;
   final ValueChanged<TimeOfDay> selectTime;
+  final Color fillColor;
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
@@ -41,7 +45,19 @@ class DateTimePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final TextStyle valueStyle = TextStyle(fontSize: 16);
     controller.text = new DateFormat('dd-MM-yyyy').format(selectedDate);
-    return SizedBox(width: 100, child: GestureDetector(child: AbsorbPointer(child: TextField(controller: controller, enabled: false)), onTap: (){print('tab'); _selectDate(context);}));
+    return GestureDetector(
+        child: AbsorbPointer(
+            child: MyTextField(
+              controller: controller,
+                label: 'Job Date',
+                prefixIcon: Icon(Icons.calendar_today),
+                fillColor: fillColor,
+                filled: true,
+                enabled: false)),
+        onTap: () {
+          print('tab');
+          _selectDate(context);
+        });
     // return Row(
     //   mainAxisAlignment: MainAxisAlignment.start,
     //   crossAxisAlignment: CrossAxisAlignment.end,
@@ -51,7 +67,7 @@ class DateTimePicker extends StatelessWidget {
     //       child: _InputDropdown(
     //         labelText: labelText,
     //         valueText: new DateFormat('dd-MM-yyyy').format(selectedDate),
-    //         valueStyle: valueStyle,    
+    //         valueStyle: valueStyle,
     //         onPressed: () {
     //           _selectDate(context);
     //         }

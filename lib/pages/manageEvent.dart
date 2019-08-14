@@ -8,6 +8,7 @@ import 'package:amphawa/services/jobs.dart';
 import 'package:amphawa/services/section.dart';
 import 'package:amphawa/widgets/button/dropdown.dart';
 import 'package:amphawa/widgets/dialog/dialog.dart';
+import 'package:amphawa/widgets/dialog/dialogListItem.dart';
 import 'package:amphawa/widgets/form/chipTile.dart';
 import 'package:amphawa/widgets/form/dateTimePicker.dart';
 import 'package:amphawa/widgets/form/multiSelectChip.dart';
@@ -34,7 +35,7 @@ class _NewEventPage extends State<NewEventPage> {
   List<Category> _rawCate = [];
   List<String> _categories = ['ไม่ระบุ'];
   List<String> _selectedCate = [];
-  Color fillColor = Color(0xFFE5EEED);
+  Color fillColor = Colors.teal[100];
   bool _completed = true;
   String _selectedDept;
   String _selectedSect;
@@ -47,6 +48,9 @@ class _NewEventPage extends State<NewEventPage> {
   TextEditingController created_by =
       new TextEditingController(text: 'Nuttapat Chaiprapun');
   TextEditingController date_time = new TextEditingController();
+  TextEditingController category = new TextEditingController();
+  TextEditingController department = new TextEditingController();
+  TextEditingController section = new TextEditingController();
   double _progress = 0;
 
   @override
@@ -116,7 +120,38 @@ class _NewEventPage extends State<NewEventPage> {
         ]),
         alignment: Alignment.center));
     List<Widget> formContent = [
-      SizedBox(height: 10),
+      Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+        GestureDetector(
+            child: Text(_status, style: TextStyle(fontSize: 18)),
+            onTap: () {
+              setState(() {
+                _completed = !_completed;
+                if (_completed)
+                  _status = 'Completed';
+                else
+                  _status = 'In Progress';
+              });
+            }),
+        SizedBox(width: 8),
+        Transform.scale(
+            scale: 1.5,
+            child: Switch(
+                materialTapTargetSize: MaterialTapTargetSize.padded,
+                value: _completed,
+                onChanged: (value) {
+                  print(value);
+                  setState(() {
+                    _completed = value;
+                    if (_completed)
+                      _status = 'Completed';
+                    else
+                      _status = 'In Progress';
+                  });
+                },
+                inactiveTrackColor: Color(0xFF77BCE1),
+                activeColor: Colors.green))
+      ]),
+      SizedBox(height: 5),
       MyTextField(
           controller: job_desc,
           label: 'Description',
@@ -143,94 +178,119 @@ class _NewEventPage extends State<NewEventPage> {
           decoration: BoxDecoration(
               color: Colors.indigo[50],
               borderRadius: BorderRadius.circular(10)),
-          padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+          padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
           // color: Colors.white,
           child: Column(children: <Widget>[
-            Column(children: <Widget>[
-              Row(children: <Widget>[
-                Container(color: fillColor, child: SizedBox(
-                    width: 85,
-                    child: GestureDetector(
-                        child: Text(_status, style: TextStyle(fontSize: 16)),
-                        onTap: () {
-                          setState(() {
-                            _completed = !_completed;
-                            if (_completed)
-                              _status = 'Completed';
-                            else
-                              _status = 'In Progress';
-                          });
-                        }))),
-                SizedBox(width: 8),
-                Container(color: fillColor, child: Transform.scale(
-                    scale: 1.5,
-                    child: Switch(
-                        materialTapTargetSize: MaterialTapTargetSize.padded,
-                        value: _completed,
-                        onChanged: (value) {
-                          print(value);
-                          setState(() {
-                            _completed = value;
-                            if (_completed)
-                              _status = 'Completed';
-                            else
-                              _status = 'In Progress';
-                          });
-                        },
-                        inactiveTrackColor: Color(0xFF77BCE1),
-                        activeColor: Colors.green)))
-              ]),
-              Row(children: <Widget>[
-                GestureDetector(
-                    child: Container(color: fillColor, child: SizedBox(
-                        width: 85,
-                        child:
-                            Text('Category', style: TextStyle(fontSize: 16)))),
-                    onTap: () {
-                      _showCategoriesDialog();
-                    }),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DropdownSimple(
-                    label: 'Category',
-                    list: _categories,
-                    onSelected: onCateSelected))
-              ]),
-              Row(children: <Widget>[
-                Text('Department', style: TextStyle(fontSize: 16, backgroundColor: fillColor)),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DropdownSimple(
-                    label: 'Department',
-                    list: _dept,
-                    onSelected: onDeptSelected))
-              ]),
-              Row(children: <Widget>[
-                SizedBox(
-                    width: 85,
-                    child: Text('Section', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DropdownSimple(
-                    label: 'Section', list: _sect, onSelected: onSectSelected))
-              ]),
-              Row(children: <Widget>[
-                SizedBox(
-                    width: 85,
-                    child: Text('Job Date', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
-                SizedBox(width: 20),
-                Container(color: fillColor, child: DateTimePicker(
-                    controller: date_time,
-                    selectedDate: _fromDate,
-                    selectedTime: _fromTime,
-                    selectDate: (DateTime date) {
-                      setState(() {
-                        _fromDate = date;
+            Column(children: <Widget>[       
+              GestureDetector(
+                  child: AbsorbPointer(
+                      child: MyTextField(
+                          controller: category,
+                          label: 'Category',
+                          prefixIcon: Icon(Icons.category),
+                          fillColor: fillColor,
+                          filled: true,
+                          enabled: false)),
+                  onTap: () {
+                    Alert.dialogWithListItem(
+                            context: context,
+                            title: 'Category',
+                            list: _categories.map((d) {
+                              return DialogListItem(
+                                  icon: Icons.category,
+                                  text: d,
+                                  onPressed: () {
+                                    Navigator.pop(context, d);
+                                  });
+                            }).toList())
+                        .then((onValue) {
+                      print(onValue);
+                      if (onValue != null) {
+                        onCateSelected(onValue);
+                        category.text = onValue;
+                      }
+                    });
+                  }),
+                  SizedBox(height: 10),
+              GestureDetector(
+                  child: AbsorbPointer(
+                      child: MyTextField(
+                          controller: department,
+                          label: 'Department',
+                          prefixIcon: Icon(Icons.people),
+                          fillColor: fillColor,
+                          filled: true,
+                          enabled: false)),
+                  onTap: () {
+                    if (_dept != null) {
+                      Alert.dialogWithListItem(
+                              context: context,
+                              title: 'Department',
+                              list: _dept.map((d) {
+                                return DialogListItem(
+                                    icon: Icons.people,
+                                    text: d,
+                                    onPressed: () {
+                                      Navigator.pop(context, d);
+                                    });
+                              }).toList())
+                          .then((onValue) {
+                        print(onValue);
+                        if (onValue != null) {
+                          onDeptSelected(onValue);
+                          department.text = onValue;
+                        }
                       });
-                    },
-                    selectTime: (TimeOfDay time) {
-                      setState(() {
-                        _fromTime = time;
+                    }
+                  }),
+                  SizedBox(height: 10),
+              GestureDetector(
+                  child: AbsorbPointer(
+                      child: MyTextField(
+                          controller: section,
+                          label: 'Section',
+                          prefixIcon: Icon(Icons.perm_identity),
+                          fillColor: fillColor,
+                          filled: true,
+                          enabled: false)),
+                  onTap: () {
+                    if (_sect.length > 0) {
+                      Alert.dialogWithListItem(
+                              context: context,
+                              title: 'Section',
+                              list: _sect.map((d) {
+                                return DialogListItem(
+                                    icon: Icons.perm_identity,
+                                    text: d,
+                                    onPressed: () {
+                                      Navigator.pop(context, d);
+                                    });
+                              }).toList())
+                          .then((onValue) {
+                        print(onValue);
+                        if (onValue != null) {
+                          onSectSelected(onValue);
+                          section.text = onValue;
+                        }
                       });
-                    }))
-              ])
+                    }
+                  }),
+                  SizedBox(height: 10),
+              DateTimePicker(
+                  controller: date_time,
+                  fillColor: fillColor,
+                  selectedDate: _fromDate,
+                  selectedTime: _fromTime,
+                  selectDate: (DateTime date) {
+                    setState(() {
+                      _fromDate = date;
+                    });
+                  },
+                  selectTime: (TimeOfDay time) {
+                    setState(() {
+                      _fromTime = time;
+                    });
+                  })
             ])
           ]))
     ];
@@ -240,7 +300,7 @@ class _NewEventPage extends State<NewEventPage> {
             borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(15),
                 bottomRight: Radius.circular(15))),
-        padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+        padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
         child: Column(children: formContent));
     if (_action == ManageJobAction.sent) {
       column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
