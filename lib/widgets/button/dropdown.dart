@@ -19,6 +19,8 @@ class _DropdownSimple extends State<DropdownSimple> {
   @override
   Widget build(BuildContext context) {
     return DropdownButton<String>(
+      iconSize: 0,
+      icon: null,
         value: _value == null ? _list.first : _value,
         onChanged: (String newValue) {
           setState(() {

@@ -8,6 +8,7 @@ class MyTextField extends StatelessWidget {
   final Widget prefixIcon;
   final Widget suffixIcon;
   final bool filled;
+  final Color fillColor;
   final InputBorder border;
   bool enabled = true;
   TextStyle textStyle = TextStyle(fontSize: 16);
@@ -19,6 +20,7 @@ class MyTextField extends StatelessWidget {
       this.prefixIcon,
       this.suffixIcon,
       this.filled,
+      this.fillColor,
       this.border,
       this.textStyle, this.enabled});
 
@@ -28,17 +30,18 @@ class MyTextField extends StatelessWidget {
           controller: this.controller,
           enabled: this.enabled,
           decoration: InputDecoration(
-            fillColor: Colors.white,
+            fillColor: this.fillColor,
             contentPadding: EdgeInsets.symmetric(vertical: 10),
             filled: this.filled,
             icon: this.icon,
             suffixIcon: this.suffixIcon,
             prefixIcon: this.prefixIcon,
-            labelText: this.label,
-            border: this.border
+            // labelText: this.label,
+            hintText: this.label,
+            border: InputBorder.none
           ),
           maxLines: this.maxLines,
-          textAlignVertical: TextAlignVertical.bottom,
+          // textAlignVertical: TextAlignVertical.bottom,
           style: this.textStyle);
   }
 }

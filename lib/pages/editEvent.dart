@@ -29,7 +29,8 @@ class EditEventPage extends StatefulWidget {
 class _EditEventPage extends State<EditEventPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ManageJobAction _action = ManageJobAction.ready;
-  List<String> _status = ['ACTIVE', 'FINISHED', 'FAIL'];
+  bool _completed = true;
+  String _status = 'Completed';
   List<String> _dept = ['ไม่ระบุ'];
   List<String> _sect = ['ไม่ระบุ'];
   List<Category> _rawCate = [];
@@ -45,6 +46,8 @@ class _EditEventPage extends State<EditEventPage> {
   TextEditingController device_no = new TextEditingController();
   TextEditingController created_by =
       new TextEditingController(text: 'Nuttapat Chaiprapun');
+  TextEditingController date_time = new TextEditingController();
+  Color fillColor = Colors.lightBlue[100];//Color(0xFFE5EEED);
   double _progress = 0;
 
   @override
@@ -101,13 +104,24 @@ class _EditEventPage extends State<EditEventPage> {
                       fontSize: 24,
                       fontWeight: FontWeight.bold))),
           Padding(
-              padding: EdgeInsets.only(right: 10),
+              padding: EdgeInsets.only(left: 10),
               child: Align(
                   child: GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child:
-                          Icon(Icons.backspace, color: Colors.white, size: 28)),
-                  alignment: Alignment.centerRight))
+                      child: Icon(Icons.arrow_back_ios,
+                          color: Colors.white, size: 36)),
+                  alignment: Alignment.centerLeft)),
+          Padding(
+              padding: EdgeInsets.only(right: 10),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(Icons.delete, color: Colors.white, size: 36),
+                    SizedBox(width: 20),
+                    GestureDetector(
+                        child: Icon(Icons.save, color: Colors.white, size: 36),
+                        onTap: submit)
+                  ]))
         ]),
         alignment: Alignment.center));
     List<Widget> formContent = [
@@ -116,27 +130,28 @@ class _EditEventPage extends State<EditEventPage> {
           controller: job_desc,
           label: 'Description',
           prefixIcon: Icon(Icons.note_add),
-          border: OutlineInputBorder(),
+          fillColor: fillColor,
           filled: true),
       SizedBox(height: 10.0),
       MyTextField(
           controller: solution,
           label: 'Solution',
           prefixIcon: Icon(Icons.edit),
-          border: OutlineInputBorder(),
           maxLines: 3,
+          fillColor: fillColor,
           filled: true),
       SizedBox(height: 10.0),
       MyTextField(
           controller: device_no,
           prefixIcon: Icon(Icons.devices),
           label: 'Device No.',
-          border: OutlineInputBorder(),
+          fillColor: fillColor,
           filled: true),
       SizedBox(height: 10),
       Container(
           decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(10)),
+              color: Colors.indigo[50],
+              borderRadius: BorderRadius.circular(10)),
           padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
           // color: Colors.white,
           child: Column(children: <Widget>[
@@ -144,71 +159,113 @@ class _EditEventPage extends State<EditEventPage> {
               Row(children: <Widget>[
                 SizedBox(
                     width: 85,
-                    child: Text('Status', style: TextStyle(fontSize: 16))),
-                SizedBox(width: 20),
-                DropdownSimple(
-                    label: 'Department',
-                    list: _status,
-                    onSelected: onDeptSelected)
+                    child: GestureDetector(
+                        child: Text(_status, style: TextStyle(fontSize: 16, backgroundColor:  fillColor)),
+                        onTap: () {
+                          setState(() {
+                            _completed = !_completed;
+                            if (_completed)
+                              _status = 'Completed';
+                            else
+                              _status = 'In Progress';
+                          });
+                        })),
+                SizedBox(width: 8),
+                Container(color: fillColor, child: Transform.scale(
+                    scale: 1.5,
+                    child: Switch(
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        value: _completed,
+                        onChanged: (value) {
+                          print(value);
+                          setState(() {
+                            _completed = value;
+                            if (_completed)
+                              _status = 'Completed';
+                            else
+                              _status = 'In Progress';
+                          });
+                        },
+                        inactiveTrackColor: Color(0xFF77BCE1),
+                        activeColor: Colors.green)))
+                // DropdownSimple(
+                //     label: 'Department',
+                //     list: _status,
+                //     onSelected: onDeptSelected)
               ]),
               Row(children: <Widget>[
                 GestureDetector(
                     child: SizedBox(
                         width: 85,
                         child:
-                            Text('Category', style: TextStyle(fontSize: 16))),
+                            Text('Category', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
                     onTap: () {
                       _showCategoriesDialog();
                     }),
                 SizedBox(width: 20),
-                DropdownSimple(
+                Container(color: fillColor, child: DropdownSimple(
                     label: 'Category',
                     list: _categories,
-                    onSelected: onCateSelected)
+                    onSelected: onCateSelected))
               ]),
               Row(children: <Widget>[
-                Text('Department', style: TextStyle(fontSize: 16)),
+                Text('Department', style: TextStyle(fontSize: 16, backgroundColor: fillColor)),
                 SizedBox(width: 20),
-                DropdownSimple(
+                Container(color: fillColor, child: DropdownSimple(
                     label: 'Department',
                     list: _dept,
-                    onSelected: onDeptSelected)
+                    onSelected: onDeptSelected))
               ]),
               Row(children: <Widget>[
                 SizedBox(
                     width: 85,
-                    child: Text('Section', style: TextStyle(fontSize: 16))),
+                    child: Text('Section', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
                 SizedBox(width: 20),
-                DropdownSimple(
-                    label: 'Section', list: _sect, onSelected: onSectSelected)
+                Container(color: fillColor, child: DropdownSimple(
+                    label: 'Section', list: _sect, onSelected: onSectSelected))
               ]),
+              // Row(children: <Widget>[
+              //   SizedBox(height: 10),
+              //   Text('Job Date', style: TextStyle(fontSize: 16)),
+              // ], mainAxisAlignment: MainAxisAlignment.start),
               Row(children: <Widget>[
-                SizedBox(height: 10),
-                Text('Job Date', style: TextStyle(fontSize: 16)),
-              ], mainAxisAlignment: MainAxisAlignment.start),
-              Container(
-                  padding: EdgeInsets.symmetric(horizontal: 0),
-                  child: DateTimePicker(
-                    selectedDate: _fromDate,
-                    selectedTime: _fromTime,
-                    selectDate: (DateTime date) {
-                      setState(() {
-                        _fromDate = date;
-                      });
-                    },
-                    selectTime: (TimeOfDay time) {
+                SizedBox(
+                    width: 85,
+                    child: Text('Job Date', style: TextStyle(fontSize: 16, backgroundColor: fillColor))),
+                SizedBox(width: 20),
+                Container(color: fillColor, child: DateTimePicker(
+                  controller: date_time,
+                  selectedDate: _fromDate,
+                  selectedTime: _fromTime,
+                  selectDate: (DateTime date){
+                    setState(() {
+                      _fromDate = date;
+                    });
+                  },
+                  selectTime: (TimeOfDay time) {
                       setState(() {
                         _fromTime = time;
                       });
-                    },
-                  )),
-              SizedBox(height: 10),
-              Center(
-                  child: RaisedButton(
-                      child:
-                          Text('Save', style: TextStyle(color: Colors.white, fontSize: 20)),
-                      onPressed: submit,
-                      color: Colors.green[400]))
+                    }
+                ))
+              ]),
+              // Container(
+              //     padding: EdgeInsets.symmetric(horizontal: 0),
+              //     child: DateTimePicker(
+              //       controller: date_time,
+              //       selectedDate: _fromDate,
+              //       selectedTime: _fromTime,
+              //       selectDate: (DateTime date) {
+              //         setState(() {
+              //           _fromDate = date;
+              //         });
+              //       },
+              //       selectTime: (TimeOfDay time) {
+              //         setState(() {
+              //           _fromTime = time;
+              //         });
+              //       },
+              //     ))
             ])
           ]))
       // _action == ManageJobAction.ready
@@ -228,7 +285,10 @@ class _EditEventPage extends State<EditEventPage> {
     ];
     Widget form = Container(
         decoration: BoxDecoration(
-            color: Color(0xFFEAEFFB), borderRadius: BorderRadius.circular(15)),
+            color: Color(0xFFEAEFFB),
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15))),
         padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
         child: Column(children: formContent));
     if (_action == ManageJobAction.sent) {

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 class DateTimePicker extends StatelessWidget {
   const DateTimePicker({
     Key key,
+    this.controller,
     this.labelText,
     this.selectedDate,
     this.selectedTime,
@@ -12,6 +13,7 @@ class DateTimePicker extends StatelessWidget {
   }) : super(key: key);
 
   final String labelText;
+  final TextEditingController controller;
   final DateTime selectedDate;
   final TimeOfDay selectedTime;
   final ValueChanged<DateTime> selectDate;
@@ -38,34 +40,25 @@ class DateTimePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final TextStyle valueStyle = TextStyle(fontSize: 16);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[
-        Expanded(
-          flex: 2,
-          child: _InputDropdown(
-            labelText: labelText,
-            valueText: new DateFormat('dd-MM-yyyy').format(selectedDate),
-            valueStyle: valueStyle,    
-            onPressed: () {
-              _selectDate(context);
-            },
-          ),
-        ),
-        // const SizedBox(width: 20.0),
-        // Expanded(
-        //   flex: 2,
-        //   child: _InputDropdown(
-        //     valueText: selectedTime.format(context),
-        //     valueStyle: valueStyle,
-        //     onPressed: () {
-        //       _selectTime(context);
-        //     },
-        //   ),
-        // ),
-      ],
-    );
+    controller.text = new DateFormat('dd-MM-yyyy').format(selectedDate);
+    return SizedBox(width: 100, child: GestureDetector(child: AbsorbPointer(child: TextField(controller: controller, enabled: false)), onTap: (){print('tab'); _selectDate(context);}));
+    // return Row(
+    //   mainAxisAlignment: MainAxisAlignment.start,
+    //   crossAxisAlignment: CrossAxisAlignment.end,
+    //   children: <Widget>[
+    //     Expanded(
+    //       flex: 1,
+    //       child: _InputDropdown(
+    //         labelText: labelText,
+    //         valueText: new DateFormat('dd-MM-yyyy').format(selectedDate),
+    //         valueStyle: valueStyle,    
+    //         onPressed: () {
+    //           _selectDate(context);
+    //         }
+    //       )
+    //     )
+    //   ],
+    // );
   }
 }
 
