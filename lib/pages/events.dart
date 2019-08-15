@@ -35,28 +35,6 @@ class _Events extends State<Events> {
         onfetchTimeout: onFetchTimeout,
         onFetchError: onFetchError);
   }
-
-  // AppBar buildAppBar(BuildContext context) {
-  //   return new AppBar(
-  //       title: new Text('Job List'),
-  //       actions: [searchBar.getSearchAction(context)]);
-  // }
-
-  // void onSubmitted(String value) {
-  //   setState(() => _scaffoldKey.currentState
-  //       .showSnackBar(new SnackBar(content: new Text('You wrote $value!'))));
-  // }
-
-  // _Events() {
-  //   searchBar = new SearchBar(
-  //       inBar: false,
-  //       buildDefaultAppBar: buildAppBar,
-  //       setState: setState,
-  //       onSubmitted: onSubmitted,
-  //       onClosed: () {
-  //         print("closed");
-  //       });
-  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,20 +47,6 @@ class _Events extends State<Events> {
                     _today = !_today;
                   });
             }),
-            // leading: InkWell(
-            //     onTap: () {
-            //       setState(() {
-            //         _today = !_today;
-            //       });
-            //     },
-            //     child: Align(
-            //         alignment: Alignment.centerRight,
-            //         child: Text(_today ? 'All' : 'Today',
-            //             style: TextStyle(
-            //                 color: Colors.white,
-            //                 fontSize: 18,
-            //                 fontWeight: FontWeight.bold),
-            //             textAlign: TextAlign.center))),
             backgroundColor: Color(0xFF57607B),
             title: Text('Job List',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
