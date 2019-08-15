@@ -29,7 +29,7 @@ class NewEventPage extends StatefulWidget {
 class _NewEventPage extends State<NewEventPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ManageJobAction _action = ManageJobAction.ready;
-  String _status = 'Completed';
+  String _status = 'completed';
   List<String> _dept = ['ไม่ระบุ'];
   List<String> _sect = ['ไม่ระบุ'];
   List<Category> _rawCate = [];
@@ -71,19 +71,29 @@ class _NewEventPage extends State<NewEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        // appBar: AppBar(
-        //   title: Text('New Event'),
-        //   actions: <Widget>[
-        //     IconButton(icon: Icon(Icons.save), iconSize: 28, onPressed: submit)
-        //   ],
-        // ),
+        appBar: AppBar(
+          leading: new IconButton(
+            icon: new Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+              size: 36,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text('New Job',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold)),
+          backgroundColor: Color(0xFF57607B),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.save, size: 36), onPressed: submit)
+            // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
+          ],
+        ),
         backgroundColor: Color(0xFF828DAA),
-        body: Center(child: SingleChildScrollView(child: _buildJobFormUI())));
-  }
-
-  String _capitalize(String name) {
-    assert(name != null && name.isNotEmpty);
-    return name.substring(0, 1).toUpperCase() + name.substring(1);
+        body: _buildJobFormUI());
+    // body: SingleChildScrollView(child: _buildJobFormUI()));
   }
 
   Widget _buildJobFormUI() {
@@ -94,29 +104,28 @@ class _NewEventPage extends State<NewEventPage> {
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15), topRight: Radius.circular(15))),
         padding: EdgeInsets.symmetric(vertical: 10),
-        child: Stack(children: <Widget>[
-          Center(
-              child: Text('New Job',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold))),
+        child: Row(children: <Widget>[
           Padding(
-              padding: EdgeInsets.only(left: 10),
-              child: Align(
-                  child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(Icons.close, color: Colors.white, size: 36)),
-                  alignment: Alignment.centerLeft)),
-          Padding(
-              padding: EdgeInsets.only(right: 10),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    GestureDetector(
-                        child: Icon(Icons.save, color: Colors.white, size: 36),
-                        onTap: submit)
-                  ]))
+            padding: EdgeInsets.only(left: 10),
+            child: GestureDetector(
+                // onTap: () => Navigator.pop(context),
+                child: Icon(Icons.note_add, color: Colors.white, size: 36)),
+          ),
+          SizedBox(width: 10),
+          // Text('New Job',
+          //     style: TextStyle(
+          //         color: Colors.white,
+          //         fontSize: 24,
+          //         fontWeight: FontWeight.bold)),
+          // Padding(
+          //     padding: EdgeInsets.only(right: 10),
+          //     child: Row(
+          //         mainAxisAlignment: MainAxisAlignment.end,
+          //         children: <Widget>[
+          //           GestureDetector(
+          //               child: Icon(Icons.clear, color: Colors.white, size: 36),
+          //               onTap: submit)
+          //         ]))
         ]),
         alignment: Alignment.center));
     List<Widget> formContent = [
@@ -127,9 +136,9 @@ class _NewEventPage extends State<NewEventPage> {
               setState(() {
                 _completed = !_completed;
                 if (_completed)
-                  _status = 'Completed';
+                  _status = 'completed';
                 else
-                  _status = 'In Progress';
+                  _status = 'progress';
               });
             }),
         SizedBox(width: 8),
@@ -181,7 +190,7 @@ class _NewEventPage extends State<NewEventPage> {
           padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
           // color: Colors.white,
           child: Column(children: <Widget>[
-            Column(children: <Widget>[       
+            Column(children: <Widget>[
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
@@ -211,7 +220,7 @@ class _NewEventPage extends State<NewEventPage> {
                       }
                     });
                   }),
-                  SizedBox(height: 10),
+              SizedBox(height: 10),
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
@@ -243,7 +252,7 @@ class _NewEventPage extends State<NewEventPage> {
                       });
                     }
                   }),
-                  SizedBox(height: 10),
+              SizedBox(height: 10),
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
@@ -275,7 +284,7 @@ class _NewEventPage extends State<NewEventPage> {
                       });
                     }
                   }),
-                  SizedBox(height: 10),
+              SizedBox(height: 10),
               DateTimePicker(
                   controller: date_time,
                   fillColor: fillColor,
@@ -301,19 +310,27 @@ class _NewEventPage extends State<NewEventPage> {
                 bottomLeft: Radius.circular(15),
                 bottomRight: Radius.circular(15))),
         padding: EdgeInsets.only(left: 10, right: 10, bottom: 10, top: 10),
-        child: Column(children: formContent));
-    if (_action == ManageJobAction.sent) {
-      column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
-    }
+        child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child:
+                SingleChildScrollView(child: Column(children: formContent))));
+    // if (_action == ManageJobAction.sent) {
+    //   column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
+    // }
     column.add(form);
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Card(
-            child: Column(
-                children: column,
-                crossAxisAlignment: CrossAxisAlignment.stretch),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15))));
+    return Column(children: <Widget>[
+      _action == ManageJobAction.sent
+          ? SizedBox(height: 10, child: LinearProgressIndicator())
+          : SizedBox(height: 0),
+      Padding(
+          padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+          child: Card(
+              child: Column(
+                  children: column,
+                  crossAxisAlignment: CrossAxisAlignment.stretch),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15))))
+    ]);
   }
   // Widget _buildJobFormUI() {
   //   List<Widget> column = [];
@@ -423,7 +440,8 @@ class _NewEventPage extends State<NewEventPage> {
           dept_id: _selectedDept,
           sect_id: _selectedSect,
           device_no: device_no.text,
-          created_by: created_by.text);
+          created_by: created_by.text,
+          job_status: _completed ? 'completed' : 'progress');
       print(data.job_desc);
       JobService.createJob(
           job: data,
@@ -444,14 +462,23 @@ class _NewEventPage extends State<NewEventPage> {
   void onSent(dio.Response res) {
     _progress = 0;
     print(res.statusCode);
+    print(res.data);
     if (res.statusCode == 200) {
-      setState(() {
-        _action = ManageJobAction.ready;
-        job_desc.clear();
-        solution.clear();
-        device_no.clear();
-        Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
-      });
+      if (res.data != 0) {
+        setState(() {
+          _action = ManageJobAction.ready;
+          job_desc.clear();
+          solution.clear();
+          device_no.clear();
+          Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+        });
+      } else {
+        setState(() {
+          _action = ManageJobAction.ready;
+          Alert.snackBar(
+              _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สามารถบันทีกข้อมูลได้');
+        });
+      }
     } else {
       print('http code error');
       print(res.statusCode);
@@ -459,7 +486,8 @@ class _NewEventPage extends State<NewEventPage> {
       print(json.decode(res.data));
       setState(() {
         _action = ManageJobAction.ready;
-        Alert.snackBar(_scaffoldKey, 'ไม่สามารถบันทีกข้อมูลได้');
+        Alert.snackBar(
+            _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สามารถบันทีกข้อมูลได้');
       });
     }
   }

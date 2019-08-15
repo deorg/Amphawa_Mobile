@@ -101,21 +101,23 @@ class ListItem extends StatelessWidget {
       this.date,
       this.icon,
       this.lines,
+      this.status,
       this.tooltip,
       this.onPressed,
       this.number})
       // : assert(lines.length > 1),
-        : super(key: key);
+      : super(key: key);
 
   final DateTime date;
   final IconData icon;
   final List<String> lines;
+  final String status;
   final String tooltip;
   final VoidCallback onPressed;
   final int number;
-  List colors = [Colors.lightGreen[200], Colors.red[200], Colors.amber[200]];
-  Random random = new Random();
-  int index = 0;
+  Color _completed = Colors.lightGreen[200];
+  Color _inProgress = Colors.lightBlueAccent[100];
+  // List colors = [Colors.lightGreen[200], Colors.red[200], Colors.amber[200]];
 
   @override
   Widget build(BuildContext context) {
@@ -129,26 +131,29 @@ class ListItem extends StatelessWidget {
         .toList();
     // columnChildren.add(Text(lines.last, style: themeData.textTheme.caption));
 
-    index = random.nextInt(3);
     final List<Widget> rowChildren = <Widget>[
       Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
           child: Column(children: <Widget>[
             Text(
-                '${ThaiDate(date).thaiShortDay} ${date.day}-${ThaiDate(date).thaiShortMonth}-${ThaiDate(date).thaiShortYear}',
+                '${date.day}-${ThaiDate(date).thaiShortMonth}-${ThaiDate(date).thaiShortYear}',
+                style: TextStyle(fontSize: 12)),
+            Text(
+                '${ThaiDate(date).thaiShortDay}',
                 style: TextStyle(fontSize: 12)),
             SizedBox(
               height: 5,
             ),
-            Center(
-                child: CircleAvatar(
+            Expanded(
+                child: Center(
+                    child: CircleAvatar(
               backgroundColor: ColorDays[date.weekday],
               child: Text(number.toString(),
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold)),
-            ))
+            )))
           ])),
       SizedBox(width: 10),
       Expanded(
@@ -165,12 +170,12 @@ class ListItem extends StatelessWidget {
       ),
       Container(
           alignment: Alignment.bottomCenter,
-          width: 10,
+          width: 15,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
                   bottomRight: Radius.circular(15),
                   topRight: Radius.circular(15)),
-              color: colors[index]))
+              color: status == 'completed' ? _completed : _inProgress))
     ];
 
     return MergeSemantics(

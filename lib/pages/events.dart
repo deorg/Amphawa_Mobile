@@ -21,6 +21,7 @@ class _Events extends State<Events> {
       GlobalKey<ScaffoldState>();
   DateTime datetime = new DateTime.now();
   JobFetchAction action;
+  bool _today = false;
   List<Job> jobs = new List<Job>();
   final refreshKey = GlobalKey<RefreshIndicatorState>();
   SearchBar searchBar;
@@ -35,36 +36,56 @@ class _Events extends State<Events> {
         onFetchError: onFetchError);
   }
 
-  AppBar buildAppBar(BuildContext context) {
-    return new AppBar(
-        title: new Text('Job List'),
-        actions: [searchBar.getSearchAction(context)]);
-  }
+  // AppBar buildAppBar(BuildContext context) {
+  //   return new AppBar(
+  //       title: new Text('Job List'),
+  //       actions: [searchBar.getSearchAction(context)]);
+  // }
 
-  void onSubmitted(String value) {
-    setState(() => _scaffoldKey.currentState
-        .showSnackBar(new SnackBar(content: new Text('You wrote $value!'))));
-  }
+  // void onSubmitted(String value) {
+  //   setState(() => _scaffoldKey.currentState
+  //       .showSnackBar(new SnackBar(content: new Text('You wrote $value!'))));
+  // }
 
-  _Events() {
-    searchBar = new SearchBar(
-        inBar: false,
-        buildDefaultAppBar: buildAppBar,
-        setState: setState,
-        onSubmitted: onSubmitted,
-        onClosed: () {
-          print("closed");
-        });
-  }
+  // _Events() {
+  //   searchBar = new SearchBar(
+  //       inBar: false,
+  //       buildDefaultAppBar: buildAppBar,
+  //       setState: setState,
+  //       onSubmitted: onSubmitted,
+  //       onClosed: () {
+  //         print("closed");
+  //       });
+  // }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
         // appBar: searchBar.build(context),
         appBar: AppBar(
-          title: Text('Job List'),
-          centerTitle: true,
-        ),
+            centerTitle: true,
+            leading: IconButton(icon: _today ? Icon(Icons.view_list) : Icon(Icons.today), iconSize: 36, onPressed: (){
+              setState(() {
+                    _today = !_today;
+                  });
+            }),
+            // leading: InkWell(
+            //     onTap: () {
+            //       setState(() {
+            //         _today = !_today;
+            //       });
+            //     },
+            //     child: Align(
+            //         alignment: Alignment.centerRight,
+            //         child: Text(_today ? 'All' : 'Today',
+            //             style: TextStyle(
+            //                 color: Colors.white,
+            //                 fontSize: 18,
+            //                 fontWeight: FontWeight.bold),
+            //             textAlign: TextAlign.center))),
+            backgroundColor: Color(0xFF57607B),
+            title: Text('Job List',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
         body: _buildActivity(),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.edit, size: 28),
@@ -124,6 +145,18 @@ class _Events extends State<Events> {
   }
 
   Widget _buildFetchCompleteUI() {
+    var displayJobs = [];
+    if (_today) {
+      displayJobs = jobs
+          .where((j) =>
+              j.job_date.day == DateTime.now().day &&
+              j.job_date.month == DateTime.now().month &&
+              j.job_date.year == DateTime.now().year)
+          .toList();
+      print('display job => ${displayJobs.length}');
+    } else {
+      displayJobs = jobs;
+    }
     return RefreshIndicator(
         key: refreshKey,
         onRefresh: () {
@@ -135,105 +168,105 @@ class _Events extends State<Events> {
           return Future.value();
         },
         child: ListView.builder(
-          padding: EdgeInsets.symmetric(vertical: 10),
-          itemCount: jobs.length,
-          itemBuilder: (context, index) {
-            List<String> lines = [];
-            if (jobs[index].job_desc != null) lines.add(jobs[index].job_desc);
-            if (jobs[index].solution != "")
-              lines.add("Solution: " + jobs[index].solution);
-            if (jobs[index].cate_id != null)
-              lines.add("Category: " + jobs[index].cate_id.join(", "));
-            if (jobs[index].dept_id != "")
-              lines.add("Department: " + jobs[index].dept_id);
-            if (jobs[index].sect_id != "")
-              lines.add("Section: " + jobs[index].sect_id);
+            padding: EdgeInsets.symmetric(vertical: 10),
+            itemCount: displayJobs.length,
+            itemBuilder: (context, index) {
+              List<String> lines = [];
+              if (displayJobs[index].job_desc != null)
+                lines.add(displayJobs[index].job_desc);
+              if (displayJobs[index].solution != "")
+                lines.add("Solution: " + displayJobs[index].solution);
+              if (displayJobs[index].cate_id != null)
+                lines.add("Category: " + displayJobs[index].cate_id.join(", "));
+              if (displayJobs[index].dept_id != "")
+                lines.add("Department: " + displayJobs[index].dept_id);
+              if (displayJobs[index].sect_id != "")
+                lines.add("Section: " + displayJobs[index].sect_id);
 
-            return Dismissible(
-                key: Key(jobs[index].job_id.toString()),
-                background: Container(
-                    color: Colors.green[100],
-                    child: Padding(
-                        padding: EdgeInsets.only(left: 30),
-                        child: Align(
-                            child: Icon(Icons.check_circle,
-                                color: Colors.green, size: 52),
-                            alignment: Alignment.centerLeft))),
-                secondaryBackground: Container(
-                    color: Colors.red[100],
-                    child: Padding(
-                        padding: EdgeInsets.only(right: 30),
-                        child: Align(
-                            child:
-                                Icon(Icons.delete, color: Colors.red, size: 52),
-                            alignment: Alignment.centerRight))),
-                onDismissed: (direction) {
-                  if (direction == DismissDirection.endToStart) {
-                    setState(() {
-                      jobs.removeAt(index);
-                    });
-                  } else {
-                    setState(() {
-                      jobs.removeAt(index);
-                    });
-                  }
-                },
-                confirmDismiss: (direction) async {
-                  if (direction == DismissDirection.endToStart) {
-                    var res = await Alert.dialogWithUiContent(
-                        context: context,
-                        title: 'Delete job ${jobs[index].job_id}',
-                        content:
-                            Text("Are you sure you want to delete this job?"),
-                        buttons: ['Yes', 'No']);
-                    if(res == 'Yes')
-                      return true;
-                      else return false;
-                  }
-                  else if(direction == DismissDirection.startToEnd){
-                    var res = await Alert.dialogWithUiContent(
-                        context: context,
-                        title: 'Mark to finished job ${jobs[index].job_id}',
-                        content:
-                            Text("Are you sure you want to finished this job?"),
-                        buttons: ['Yes', 'No']);
-                    if(res == 'Yes')
-                      return true;
-                      else return false;
-                  }
-                  else
-                   return false;
-                },
-                child: IntrinsicHeight(
-                  child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15.0),
-                      ),
-                      child: InkWell(
-                          child: ListItem(
-                              date: jobs[index].job_date,
-                              number: index + 1,
-                              icon: Icons.note_add,
-                              lines: lines),
-                          onTap: () {
-                            print('press on ${jobs[index].job_id}');
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute<ManageJobAction>(
-                                  builder: (BuildContext context) =>
-                                      edit.EditEventPage(jobs[index]),
-                                  fullscreenDialog: true,
-                                )).then((ManageJobAction result) {
-                              action = JobFetchAction.fetch;
-                              JobService.fetchJob(
-                                  onFetchFinished: onFetchFinished,
-                                  onfetchTimeout: onFetchTimeout,
-                                  onFetchError: onFetchError);
-                            });
-                          })),
-                ));
-          }
-        ));
+              return Dismissible(
+                  key: Key(displayJobs[index].job_id.toString()),
+                  background: Container(
+                      color: Colors.green[100],
+                      child: Padding(
+                          padding: EdgeInsets.only(left: 30),
+                          child: Align(
+                              child: Icon(Icons.check_circle,
+                                  color: Colors.green, size: 52),
+                              alignment: Alignment.centerLeft))),
+                  secondaryBackground: Container(
+                      color: Colors.red[100],
+                      child: Padding(
+                          padding: EdgeInsets.only(right: 30),
+                          child: Align(
+                              child: Icon(Icons.delete,
+                                  color: Colors.red, size: 52),
+                              alignment: Alignment.centerRight))),
+                  onDismissed: (direction) {
+                    if (direction == DismissDirection.endToStart) {
+                      setState(() {
+                        displayJobs.removeAt(index);
+                      });
+                    } else {
+                      setState(() {
+                        displayJobs.removeAt(index);
+                      });
+                    }
+                  },
+                  confirmDismiss: (direction) async {
+                    if (direction == DismissDirection.endToStart) {
+                      var res = await Alert.dialogWithUiContent(
+                          context: context,
+                          title: 'Delete job ${displayJobs[index].job_id}',
+                          content:
+                              Text("Are you sure you want to delete this job?"),
+                          buttons: ['Yes', 'No']);
+                      if (res == 'Yes')
+                        return true;
+                      else
+                        return false;
+                    } else if (direction == DismissDirection.startToEnd) {
+                      var res = await Alert.dialogWithUiContent(
+                          context: context,
+                          title:
+                              'Mark job ${displayJobs[index].job_id} to be completed',
+                          content: Text("Are you sure you want to finished this job?"),
+                          buttons: ['Yes', 'No']);
+                      if (res == 'Yes')
+                        return true;
+                      else
+                        return false;
+                    } else
+                      return false;
+                  },
+                  child: IntrinsicHeight(
+                    child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15.0),
+                        ),
+                        child: InkWell(
+                            child: ListItem(
+                                date: displayJobs[index].job_date,
+                                number: index + 1,
+                                icon: Icons.note_add,
+                                lines: lines,
+                                status: displayJobs[index].job_status),
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute<ManageJobAction>(
+                                    builder: (BuildContext context) =>
+                                        edit.EditEventPage(displayJobs[index]),
+                                    fullscreenDialog: true,
+                                  )).then((ManageJobAction result) {
+                                action = JobFetchAction.fetch;
+                                JobService.fetchJob(
+                                    onFetchFinished: onFetchFinished,
+                                    onfetchTimeout: onFetchTimeout,
+                                    onFetchError: onFetchError);
+                              });
+                            })),
+                  ));
+            }));
   }
 
   Widget _buildFetchTimeoutUI() {

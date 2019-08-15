@@ -11,6 +11,7 @@ class Job {
   final List<String> cate_id;
   final String created_by;
   final DateTime created_time;
+  final String job_status;
   Job(
       {this.job_id,
       this.job_date,
@@ -21,7 +22,8 @@ class Job {
       this.device_no,
       this.cate_id,
       this.created_by,
-      this.created_time});
+      this.created_time,
+      this.job_status});
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = new Map<String, dynamic>();
@@ -34,6 +36,7 @@ class Job {
     json['device_no'] = device_no;
     json['cate_id'] = cate_id;
     json['created_by'] = created_by;
+    json['job_status'] = job_status;
     return json;
   }
 
@@ -48,12 +51,13 @@ class Job {
         device_no: json['device_no'],
         cate_id: convertCate_id(json['cate_id']),
         created_by: json['created_by'],
-        created_time: DateTime.parse(json['created_time']));
+        created_time: DateTime.parse(json['created_time']),
+        job_status: json['job_status']);
   }
-  static List<String> convertCate_id(List<dynamic> json){
-    if(json == null)
-    return null;
-    else{
+  static List<String> convertCate_id(List<dynamic> json) {
+    if (json == null)
+      return null;
+    else {
       List<String> data = [];
       json.forEach((f) => data.add(f.toString()));
       return data;

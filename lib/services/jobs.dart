@@ -9,6 +9,7 @@ class JobService {
   static const _getJobUrl = _host + HttpService.getJob;
   static const _createJobUrl = _host + HttpService.addJob;
   static const _updateJobUrl = _host + HttpService.updateJob;
+  static const _deleteJobUrl = _host + HttpService.deleteJob;
 
   static Future fetchJob(
       {Function onFetchFinished,
@@ -69,5 +70,19 @@ class JobService {
         .catchError((onError) {
           onSendCatchError(onError);
         });
+  }
+
+  static Future deleteJob(
+      {int job_id,
+      Function onDeleted,
+      Function onDeleteTimeout,
+      Function onDeleteCatchError}) async {
+    print('deleting');
+    await get('$_deleteJobUrl?job_id=$job_id')
+        .then((Response response) {
+          onDeleted(response);
+        })
+        .timeout(Duration(seconds: 60), onTimeout: onDeleteTimeout)
+        .catchError((onError) => onDeleteCatchError(onError));
   }
 }

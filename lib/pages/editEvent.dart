@@ -17,7 +17,7 @@ import 'package:amphawa/widgets/form/myTextField.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 
-enum ManageJobAction { ready, readyMore, sent, completed }
+enum ManageJobAction { ready, readyMore, sent, deleted, completed }
 
 class EditEventPage extends StatefulWidget {
   final Job job;
@@ -62,6 +62,7 @@ class _EditEventPage extends State<EditEventPage> {
     solution.text = widget.job.solution;
     device_no.text = widget.job.device_no;
     created_by.text = widget.job.created_by;
+    _completed = widget.job.job_status == 'completed' ? true : false;
     _fromDate = widget.job.job_date;
 
     DeptService.fetchDept(
@@ -78,19 +79,34 @@ class _EditEventPage extends State<EditEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
-        // appBar: AppBar(
-        //   title: Text('Edit Job ${widget.job.job_id}'),
-        //   actions: <Widget>[
-        //     IconButton(icon: Icon(Icons.save), iconSize: 28, onPressed: submit)
-        //   ],
-        // ),
+        appBar: AppBar(
+          leading: new IconButton(
+            icon: new Icon(
+              Icons.arrow_back_ios,
+              color: Colors.white,
+              size: 36,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          title: Text('Edit Job',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold)),
+          backgroundColor: Color(0xFF57607B),
+          actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.delete, size: 36),
+                onPressed: () {
+                  delete(widget.job.job_id);
+                },
+                tooltip: 'Delete'),
+            IconButton(icon: Icon(Icons.save, size: 36), onPressed: submit)
+            // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
+          ],
+        ),
         backgroundColor: Color(0xFF828DAA),
-        body: Center(child: SingleChildScrollView(child: _buildJobFormUI())));
-  }
-
-  String _capitalize(String name) {
-    assert(name != null && name.isNotEmpty);
-    return name.substring(0, 1).toUpperCase() + name.substring(1);
+        body: _buildJobFormUI());
   }
 
   Widget _buildJobFormUI() {
@@ -101,32 +117,18 @@ class _EditEventPage extends State<EditEventPage> {
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15), topRight: Radius.circular(15))),
         padding: EdgeInsets.symmetric(vertical: 10),
-        child: Stack(children: <Widget>[
-          Center(
-              child: Text('Edit Job',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold))),
+        child: Row(children: <Widget>[
           Padding(
-              padding: EdgeInsets.only(left: 10),
-              child: Align(
-                  child: GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(Icons.arrow_back_ios,
-                          color: Colors.white, size: 36)),
-                  alignment: Alignment.centerLeft)),
-          Padding(
-              padding: EdgeInsets.only(right: 10),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Icon(Icons.delete, color: Colors.white, size: 36),
-                    SizedBox(width: 20),
-                    GestureDetector(
-                        child: Icon(Icons.save, color: Colors.white, size: 36),
-                        onTap: submit)
-                  ]))
+            padding: EdgeInsets.only(left: 10),
+            child: GestureDetector(
+                child: Icon(Icons.edit, color: Colors.white, size: 36)),
+          ),
+          SizedBox(width: 10),
+          // Text('Edit Job',
+          //     style: TextStyle(
+          //         color: Colors.white,
+          //         fontSize: 24,
+          //         fontWeight: FontWeight.bold)),
         ]),
         alignment: Alignment.center));
     List<Widget> formContent = [
@@ -236,7 +238,7 @@ class _EditEventPage extends State<EditEventPage> {
                       }
                     });
                   }),
-                  SizedBox(height: 10),
+              SizedBox(height: 10),
               // Row(children: <Widget>[
               //   Text('Department', style: TextStyle(fontSize: 16)),
               //   SizedBox(width: 20),
@@ -248,7 +250,7 @@ class _EditEventPage extends State<EditEventPage> {
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
-                        controller: department,
+                          controller: department,
                           label: 'Department',
                           prefixIcon: Icon(Icons.people),
                           fillColor: fillColor,
@@ -276,7 +278,7 @@ class _EditEventPage extends State<EditEventPage> {
                       });
                     }
                   }),
-                  SizedBox(height: 10),
+              SizedBox(height: 10),
               // Row(children: <Widget>[
               //   SizedBox(
               //       width: 85,
@@ -288,7 +290,7 @@ class _EditEventPage extends State<EditEventPage> {
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
-                        controller: section,
+                          controller: section,
                           label: 'Section',
                           prefixIcon: Icon(Icons.perm_identity),
                           fillColor: fillColor,
@@ -316,7 +318,7 @@ class _EditEventPage extends State<EditEventPage> {
                       });
                     }
                   }),
-                  SizedBox(height: 10),
+              SizedBox(height: 10),
               DateTimePicker(
                   controller: date_time,
                   fillColor: fillColor,
@@ -342,19 +344,30 @@ class _EditEventPage extends State<EditEventPage> {
                 bottomLeft: Radius.circular(15),
                 bottomRight: Radius.circular(15))),
         padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-        child: Column(children: formContent));
-    if (_action == ManageJobAction.sent) {
-      column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
-    }
+        child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child:
+                SingleChildScrollView(child: Column(children: formContent))));
+    // if (_action == ManageJobAction.sent) {
+    //   column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
+    // }
     column.add(form);
-    return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
-        child: Card(
-            child: Column(
-                children: column,
-                crossAxisAlignment: CrossAxisAlignment.stretch),
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15))));
+    return Column(children: <Widget>[
+      _action == ManageJobAction.sent
+          ? SizedBox(height: 10, child: LinearProgressIndicator())
+          : SizedBox(height: 0),
+      _action == ManageJobAction.deleted
+          ? SizedBox(height: 10, child: LinearProgressIndicator())
+          : SizedBox(height: 0),
+      Padding(
+          padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+          child: Card(
+              child: Column(
+                  children: column,
+                  crossAxisAlignment: CrossAxisAlignment.stretch),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15))))
+    ]);
   }
 
   void submit() {
@@ -368,7 +381,7 @@ class _EditEventPage extends State<EditEventPage> {
         cate_id.add(res.cate_id);
       });
       if (widget.job.dept_id != null && _selectedDept == null) {
-        dept_id = widget.job.dept_id;
+        dept_id = widget.job.dept_id.split(" ").first;
       } else if (widget.job.dept_id != null && _selectedDept != null) {
         dept_id = _selectedDept;
       } else if (widget.job.dept_id == null && _selectedDept != null) {
@@ -385,7 +398,6 @@ class _EditEventPage extends State<EditEventPage> {
       } else {
         sect_id = _selectedSect;
       }
-
       Job data = new Job(
           job_id: widget.job.job_id,
           job_date: _fromDate,
@@ -395,8 +407,17 @@ class _EditEventPage extends State<EditEventPage> {
           dept_id: dept_id,
           sect_id: sect_id,
           device_no: device_no.text,
-          created_by: created_by.text);
+          created_by: created_by.text,
+          job_status: _completed ? 'completed' : 'progress');
       print(data.job_id);
+      print(_fromDate);
+      print(job_desc.text);
+      print(solution.text);
+      print(cate_id);
+      print(dept_id);
+      print(sect_id);
+      print(device_no.text);
+      print(created_by.text);
       JobService.updateJob(
           job: data,
           onSending: onSending,
@@ -404,6 +425,25 @@ class _EditEventPage extends State<EditEventPage> {
           onSendTimeout: onSendTimeout,
           onSendCatchError: onSendCatchError);
     });
+  }
+
+  Future delete(int job_id) async {
+    var res = await Alert.dialogWithUiContent(
+        context: context,
+        title: 'Delete job',
+        content: Text("Are you sure you want to delete this job?"),
+        buttons: ['Yes', 'No']);
+    if (res == 'Yes') {
+      print(job_id);
+      setState(() {
+        _action = ManageJobAction.deleted;
+        JobService.deleteJob(
+            job_id: job_id,
+            onDeleted: onDeleted,
+            onDeleteTimeout: onDeleteTimeout,
+            onDeleteCatchError: onDeleteCatchError);
+      });
+    }
   }
 
   void onSending(sent, total) {
@@ -417,10 +457,18 @@ class _EditEventPage extends State<EditEventPage> {
     _progress = 0;
     print(res.statusCode);
     if (res.statusCode == 200) {
-      setState(() {
-        _action = ManageJobAction.ready;
-        Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
-      });
+      if (res.data != 0) {
+        setState(() {
+          _action = ManageJobAction.ready;
+          Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+        });
+      } else {
+        setState(() {
+          _action = ManageJobAction.ready;
+          Alert.snackBar(
+              _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สามารถบันทีกข้อมูลได้');
+        });
+      }
     } else {
       print('http code error');
       print(res.statusCode);
@@ -431,6 +479,50 @@ class _EditEventPage extends State<EditEventPage> {
         Alert.snackBar(_scaffoldKey, 'ไม่สามารถบันทีก���้อมูลได้');
       });
     }
+  }
+
+  void onDeleted(Response res) {
+    _progress = 0;
+    print(res.statusCode);
+    if (res.statusCode == 200) {
+      if (res.body != '0') {
+        setState(() {
+          _action = ManageJobAction.ready;
+          Alert.snackBar(_scaffoldKey, 'ลบข้อมูลสำเร็จ');
+          Navigator.pop(context);
+        });
+      } else {
+        setState(() {
+          _action = ManageJobAction.ready;
+          Alert.snackBar(
+              _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สามารถลบข้อมูลได้');
+        });
+      }
+    } else {
+      print('http code error');
+      print(res.statusCode);
+      print(json.decode(res.body));
+      setState(() {
+        _action = ManageJobAction.ready;
+        Alert.snackBar(_scaffoldKey, 'ไม่สามารถบันทีกข้อมูลได้');
+      });
+    }
+  }
+
+  void onDeleteTimeout() {
+    print('time out');
+    setState(() {
+      _action = ManageJobAction.ready;
+      Alert.snackBar(_scaffoldKey, 'หมดเวลาในการส่งข้อมูล');
+    });
+  }
+
+  void onDeleteCatchError(dynamic onError) {
+    print(onError);
+    setState(() {
+      _action = ManageJobAction.ready;
+      Alert.snackBar(_scaffoldKey, 'พบข้อผิดพลาดในการส่งข้อมูล');
+    });
   }
 
   void onSendTimeout() {
