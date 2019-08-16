@@ -101,7 +101,9 @@ class _EditEventPage extends State<EditEventPage> {
                   delete(widget.job.job_id);
                 },
                 tooltip: 'Delete'),
-            IconButton(icon: Icon(Icons.save, size: 36), onPressed: submit)
+            IconButton(
+                icon: Icon(Icons.content_copy, size: 30), onPressed: () => submit(saveAs: true)),
+            IconButton(icon: Icon(Icons.save, size: 36), onPressed:() => submit(saveAs: false)),
             // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
           ],
         ),
@@ -123,7 +125,43 @@ class _EditEventPage extends State<EditEventPage> {
             child: GestureDetector(
                 child: Icon(Icons.edit, color: Colors.white, size: 36)),
           ),
-          SizedBox(width: 10),
+          // SizedBox(width: 10),
+          Expanded(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                GestureDetector(
+                    child: Text(_status,
+                        style: TextStyle(fontSize: 20, color: Colors.white)),
+                    onTap: () {
+                      setState(() {
+                        _completed = !_completed;
+                        if (_completed)
+                          _status = 'Completed';
+                        else
+                          _status = 'In Progress';
+                      });
+                    }),
+                SizedBox(width: 8),
+                Transform.scale(
+                    scale: 1.5,
+                    child: Switch(
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        value: _completed,
+                        onChanged: (value) {
+                          print(value);
+                          setState(() {
+                            _completed = value;
+                            if (_completed)
+                              _status = 'Completed';
+                            else
+                              _status = 'In Progress';
+                          });
+                        },
+                        inactiveTrackColor: Color(0xFF77BCE1),
+                        activeColor: Colors.green)),
+                SizedBox(width: 10)
+              ]))
           // Text('Edit Job',
           //     style: TextStyle(
           //         color: Colors.white,
@@ -133,35 +171,35 @@ class _EditEventPage extends State<EditEventPage> {
         alignment: Alignment.center));
     List<Widget> formContent = [
       Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-        GestureDetector(
-            child: Text(_status, style: TextStyle(fontSize: 18)),
-            onTap: () {
-              setState(() {
-                _completed = !_completed;
-                if (_completed)
-                  _status = 'Completed';
-                else
-                  _status = 'In Progress';
-              });
-            }),
-        SizedBox(width: 8),
-        Transform.scale(
-            scale: 1.5,
-            child: Switch(
-                materialTapTargetSize: MaterialTapTargetSize.padded,
-                value: _completed,
-                onChanged: (value) {
-                  print(value);
-                  setState(() {
-                    _completed = value;
-                    if (_completed)
-                      _status = 'Completed';
-                    else
-                      _status = 'In Progress';
-                  });
-                },
-                inactiveTrackColor: Color(0xFF77BCE1),
-                activeColor: Colors.green))
+        // GestureDetector(
+        //     child: Text(_status, style: TextStyle(fontSize: 18)),
+        //     onTap: () {
+        //       setState(() {
+        //         _completed = !_completed;
+        //         if (_completed)
+        //           _status = 'Completed';
+        //         else
+        //           _status = 'In Progress';
+        //       });
+        //     }),
+        // SizedBox(width: 8),
+        // Transform.scale(
+        //     scale: 1.5,
+        //     child: Switch(
+        //         materialTapTargetSize: MaterialTapTargetSize.padded,
+        //         value: _completed,
+        //         onChanged: (value) {
+        //           print(value);
+        //           setState(() {
+        //             _completed = value;
+        //             if (_completed)
+        //               _status = 'Completed';
+        //             else
+        //               _status = 'In Progress';
+        //           });
+        //         },
+        //         inactiveTrackColor: Color(0xFF77BCE1),
+        //         activeColor: Colors.green))
       ]),
       SizedBox(height: 5),
       MyTextField(
@@ -370,7 +408,7 @@ class _EditEventPage extends State<EditEventPage> {
     ]);
   }
 
-  void submit() {
+  void submit({bool saveAs = false}) {
     String dept_id;
     String sect_id;
     setState(() {
@@ -390,7 +428,7 @@ class _EditEventPage extends State<EditEventPage> {
         dept_id = _selectedDept;
       }
       if (widget.job.sect_id != null && _selectedSect == null) {
-        sect_id = widget.job.sect_id;
+        sect_id = widget.job.sect_id.split(" ").first;
       } else if (widget.job.sect_id != null && _selectedSect != null) {
         sect_id = _selectedSect;
       } else if (widget.job.sect_id == null && _selectedSect != null) {
@@ -418,12 +456,22 @@ class _EditEventPage extends State<EditEventPage> {
       print(sect_id);
       print(device_no.text);
       print(created_by.text);
-      JobService.updateJob(
-          job: data,
-          onSending: onSending,
-          onSent: onSent,
-          onSendTimeout: onSendTimeout,
-          onSendCatchError: onSendCatchError);
+
+      if (saveAs) {
+        JobService.createJob(
+            job: data,
+            onSending: onSending,
+            onSent: onSent,
+            onSendTimeout: onSendTimeout,
+            onSendCatchError: onSendCatchError);
+      } else {
+        JobService.updateJob(
+            job: data,
+            onSending: onSending,
+            onSent: onSent,
+            onSendTimeout: onSendTimeout,
+            onSendCatchError: onSendCatchError);
+      }
     });
   }
 

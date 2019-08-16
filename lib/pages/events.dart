@@ -16,25 +16,38 @@ class Events extends StatefulWidget {
   State<StatefulWidget> createState() => _Events();
 }
 
-class _Events extends State<Events> {
+class _Events extends State<Events> with TickerProviderStateMixin {
   static final GlobalKey<ScaffoldState> _scaffoldKey =
       GlobalKey<ScaffoldState>();
   DateTime datetime = new DateTime.now();
   JobFetchAction action;
   bool _today = false;
+  bool _expand = false;
   List<Job> jobs = new List<Job>();
   final refreshKey = GlobalKey<RefreshIndicatorState>();
   SearchBar searchBar;
+  // PermissionStatus _permissionStatus;
 
   @override
   void initState() {
     super.initState();
+    // PermissionHandler()
+    //     .checkPermissionStatus(PermissionGroup.locationWhenInUse)
+    //     .then((status) {
+    //   if (status != _permissionStatus) {
+    //     _updatePermission(status);
+    //   }
+    //   if(status != PermissionStatus.granted){
+    //     _askForPermission();
+    //   }
+    // });
     action = JobFetchAction.fetch;
     JobService.fetchJob(
         onFetchFinished: onFetchFinished,
         onfetchTimeout: onFetchTimeout,
         onFetchError: onFetchError);
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,14 +55,29 @@ class _Events extends State<Events> {
         // appBar: searchBar.build(context),
         appBar: AppBar(
             centerTitle: true,
-            leading: IconButton(icon: _today ? Icon(Icons.view_list) : Icon(Icons.today), iconSize: 36, onPressed: (){
-              setState(() {
+            leading: IconButton(
+                icon: _today ? Icon(Icons.view_list) : Icon(Icons.today),
+                iconSize: 36,
+                onPressed: () {
+                  setState(() {
                     _today = !_today;
                   });
-            }),
+                }),
             backgroundColor: Color(0xFF57607B),
             title: Text('Job List',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            actions: <Widget>[
+              IconButton(
+                  icon: _expand
+                      ? Icon(Icons.expand_less)
+                      : Icon(Icons.expand_more),
+                  iconSize: 36,
+                  onPressed: () {
+                    setState(() {
+                      _expand = !_expand;
+                    });
+                  })
+            ]),
         body: _buildActivity(),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.edit, size: 28),
@@ -202,34 +230,44 @@ class _Events extends State<Events> {
                     } else
                       return false;
                   },
-                  child: IntrinsicHeight(
-                    child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15.0),
-                        ),
-                        child: InkWell(
-                            child: ListItem(
-                                date: displayJobs[index].job_date,
-                                number: index + 1,
-                                icon: Icons.note_add,
-                                lines: lines,
-                                status: displayJobs[index].job_status),
-                            onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute<ManageJobAction>(
-                                    builder: (BuildContext context) =>
-                                        edit.EditEventPage(displayJobs[index]),
-                                    fullscreenDialog: true,
-                                  )).then((ManageJobAction result) {
-                                action = JobFetchAction.fetch;
-                                JobService.fetchJob(
-                                    onFetchFinished: onFetchFinished,
-                                    onfetchTimeout: onFetchTimeout,
-                                    onFetchError: onFetchError);
-                              });
-                            })),
-                  ));
+                  // child: IntrinsicHeight(
+                  child: AnimatedSize(
+                      vsync: this,
+                      duration: Duration(milliseconds: 1500),
+                      curve: Curves.linearToEaseOut,
+                      child: IntrinsicHeight(
+                        child: Container(
+                            height: _expand
+                                ? null
+                                : MediaQuery.of(context).size.height * 0.15,
+                            child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                child: InkWell(
+                                    child: ListItem(
+                                        date: displayJobs[index].job_date,
+                                        number: index + 1,
+                                        icon: Icons.note_add,
+                                        lines: lines,
+                                        status: displayJobs[index].job_status),
+                                    onTap: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute<ManageJobAction>(
+                                            builder: (BuildContext context) =>
+                                                edit.EditEventPage(
+                                                    displayJobs[index]),
+                                            fullscreenDialog: true,
+                                          )).then((ManageJobAction result) {
+                                        action = JobFetchAction.fetch;
+                                        JobService.fetchJob(
+                                            onFetchFinished: onFetchFinished,
+                                            onfetchTimeout: onFetchTimeout,
+                                            onFetchError: onFetchError);
+                                      });
+                                    }))),
+                      )));
             }));
   }
 
@@ -242,7 +280,7 @@ class _Events extends State<Events> {
   }
 
   Widget _buildNoDataUI() {
-    return Center(child: Text('ไม่พบข้อมู���'));
+    return Center(child: Text('ไม่พบข้อมูล'));
   }
 
   void onFetchFinished(Response response) {
@@ -277,4 +315,29 @@ class _Events extends State<Events> {
       action = JobFetchAction.error;
     });
   }
+
+  // void _updatePermission(PermissionStatus status) {
+  //   if (status != _permissionStatus) {
+  //     setState(() {
+  //       _permissionStatus = status;
+  //     });
+  //   }
+  //   print('status => ');
+  //   print(status);
+  // }
+
+  // void _askForPermission() {
+  //   PermissionHandler().requestPermissions(
+  //       [PermissionGroup.locationWhenInUse]).then(_onPermissionRequest);
+  // }
+
+  // void _onPermissionRequest(Map<PermissionGroup, PermissionStatus> status) {
+  //   final res = status[PermissionGroup.locationWhenInUse];
+  //   if (res == PermissionStatus.denied) {
+  //     PermissionHandler().openAppSettings();
+  //   } else if (res == PermissionStatus.granted){
+  //     _updatePermission(res);
+  //   }
+  //   print('status => $_permissionStatus');
+  // }
 }

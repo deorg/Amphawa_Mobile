@@ -111,55 +111,41 @@ class _NewEventPage extends State<NewEventPage> {
                 // onTap: () => Navigator.pop(context),
                 child: Icon(Icons.note_add, color: Colors.white, size: 36)),
           ),
-          SizedBox(width: 10),
-          // Text('New Job',
-          //     style: TextStyle(
-          //         color: Colors.white,
-          //         fontSize: 24,
-          //         fontWeight: FontWeight.bold)),
-          // Padding(
-          //     padding: EdgeInsets.only(right: 10),
-          //     child: Row(
-          //         mainAxisAlignment: MainAxisAlignment.end,
-          //         children: <Widget>[
-          //           GestureDetector(
-          //               child: Icon(Icons.clear, color: Colors.white, size: 36),
-          //               onTap: submit)
-          //         ]))
-        ]),
-        alignment: Alignment.center));
-    List<Widget> formContent = [
-      Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-        GestureDetector(
-            child: Text(_status, style: TextStyle(fontSize: 18)),
-            onTap: () {
-              setState(() {
-                _completed = !_completed;
-                if (_completed)
-                  _status = 'completed';
-                else
-                  _status = 'progress';
-              });
-            }),
-        SizedBox(width: 8),
-        Transform.scale(
-            scale: 1.5,
-            child: Switch(
-                materialTapTargetSize: MaterialTapTargetSize.padded,
-                value: _completed,
-                onChanged: (value) {
-                  print(value);
+          Expanded(child: Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
+            GestureDetector(
+                child: Text(_status,
+                    style: TextStyle(fontSize: 20, color: Colors.white)),
+                onTap: () {
                   setState(() {
-                    _completed = value;
+                    _completed = !_completed;
                     if (_completed)
                       _status = 'Completed';
                     else
                       _status = 'In Progress';
                   });
-                },
-                inactiveTrackColor: Color(0xFF77BCE1),
-                activeColor: Colors.green))
-      ]),
+                }),
+            SizedBox(width: 8),
+            Transform.scale(
+                scale: 1.5,
+                child: Switch(
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    value: _completed,
+                    onChanged: (value) {
+                      print(value);
+                      setState(() {
+                        _completed = value;
+                        if (_completed)
+                          _status = 'Completed';
+                        else
+                          _status = 'In Progress';
+                      });
+                    },
+                    inactiveTrackColor: Color(0xFF77BCE1),
+                    activeColor: Colors.green)), SizedBox(width: 10)
+          ]))
+        ]),
+        alignment: Alignment.center));
+    List<Widget> formContent = [
       SizedBox(height: 5),
       MyTextField(
           controller: job_desc,

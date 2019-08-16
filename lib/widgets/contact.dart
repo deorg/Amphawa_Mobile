@@ -161,11 +161,11 @@ class ListItem extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 10),
           child: GestureDetector(
               onTap: onPressed,
-              child: Column(
+              child: SingleChildScrollView(physics: NeverScrollableScrollPhysics(), child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: columnChildren,
-              )),
+              ))),
         ),
       ),
       Container(
