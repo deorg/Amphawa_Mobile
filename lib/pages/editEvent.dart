@@ -9,7 +9,6 @@ import 'package:amphawa/services/category.dart';
 import 'package:amphawa/services/department.dart';
 import 'package:amphawa/services/jobs.dart';
 import 'package:amphawa/services/section.dart';
-import 'package:amphawa/widgets/button/dropdown.dart';
 import 'package:amphawa/widgets/dialog/dialog.dart';
 import 'package:amphawa/widgets/form/dateTimePicker.dart';
 import 'package:amphawa/widgets/form/multiSelectChip.dart';
@@ -102,7 +101,7 @@ class _EditEventPage extends State<EditEventPage> {
                 },
                 tooltip: 'Delete'),
             IconButton(
-                icon: Icon(Icons.content_copy, size: 30), onPressed: () => submit(saveAs: true)),
+                icon: Icon(Icons.content_copy, size: 30), onPressed: () => duplicate()),
             IconButton(icon: Icon(Icons.save, size: 36), onPressed:() => submit(saveAs: false)),
             // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
           ],
@@ -491,6 +490,17 @@ class _EditEventPage extends State<EditEventPage> {
             onDeleteTimeout: onDeleteTimeout,
             onDeleteCatchError: onDeleteCatchError);
       });
+    }
+  }
+
+  Future duplicate() async {
+    var res = await Alert.dialogWithUiContent(
+        context: context,
+        title: 'Duplicate job',
+        content: Text("Are you sure you want to duplicate this job?"),
+        buttons: ['Yes', 'No']);
+    if (res == 'Yes') {
+      submit(saveAs: true);
     }
   }
 
