@@ -22,7 +22,7 @@ class _Events extends State<Events> with TickerProviderStateMixin {
   DateTime datetime = new DateTime.now();
   JobFetchAction action;
   bool _today = false;
-  bool _expand = false;
+  bool _expand = true;
   List<Job> jobs = new List<Job>();
   final refreshKey = GlobalKey<RefreshIndicatorState>();
   SearchBar searchBar;
