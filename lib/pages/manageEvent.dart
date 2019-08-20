@@ -87,8 +87,11 @@ class _NewEventPage extends State<NewEventPage> {
                   fontWeight: FontWeight.bold)),
           backgroundColor: Color(0xFF57607B),
           actions: <Widget>[
+            IconButton(
+                icon: Icon(Icons.flash_auto),
+                iconSize: 36,
+                onPressed: autoSentenseDialog),
             IconButton(icon: Icon(Icons.save, size: 36), onPressed: submit)
-            // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
           ],
         ),
         backgroundColor: Color(0xFF828DAA),
@@ -111,38 +114,42 @@ class _NewEventPage extends State<NewEventPage> {
                 // onTap: () => Navigator.pop(context),
                 child: Icon(Icons.note_add, color: Colors.white, size: 36)),
           ),
-          Expanded(child: Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-            GestureDetector(
-                child: Text(_status,
-                    style: TextStyle(fontSize: 20, color: Colors.white)),
-                onTap: () {
-                  setState(() {
-                    _completed = !_completed;
-                    if (_completed)
-                      _status = 'Completed';
-                    else
-                      _status = 'In Progress';
-                  });
-                }),
-            SizedBox(width: 8),
-            Transform.scale(
-                scale: 1.5,
-                child: Switch(
-                    materialTapTargetSize: MaterialTapTargetSize.padded,
-                    value: _completed,
-                    onChanged: (value) {
-                      print(value);
+          Expanded(
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                GestureDetector(
+                    child: Text(_status,
+                        style: TextStyle(fontSize: 20, color: Colors.white)),
+                    onTap: () {
                       setState(() {
-                        _completed = value;
+                        _completed = !_completed;
                         if (_completed)
                           _status = 'Completed';
                         else
                           _status = 'In Progress';
                       });
-                    },
-                    inactiveTrackColor: Color(0xFF77BCE1),
-                    activeColor: Colors.green)), SizedBox(width: 10)
-          ]))
+                    }),
+                SizedBox(width: 8),
+                Transform.scale(
+                    scale: 1.5,
+                    child: Switch(
+                        materialTapTargetSize: MaterialTapTargetSize.padded,
+                        value: _completed,
+                        onChanged: (value) {
+                          print(value);
+                          setState(() {
+                            _completed = value;
+                            if (_completed)
+                              _status = 'Completed';
+                            else
+                              _status = 'In Progress';
+                          });
+                        },
+                        inactiveTrackColor: Color(0xFF77BCE1),
+                        activeColor: Colors.green)),
+                SizedBox(width: 10)
+              ]))
         ]),
         alignment: Alignment.center));
     List<Widget> formContent = [
@@ -318,97 +325,6 @@ class _NewEventPage extends State<NewEventPage> {
                   borderRadius: BorderRadius.circular(15))))
     ]);
   }
-  // Widget _buildJobFormUI() {
-  //   List<Widget> column = [];
-  //   List<Widget> formContent = [
-  //     SizedBox(height: 20),
-  //     MyTextField(
-  //         controller: job_desc, label: 'Description', icon: Icon(Icons.title)),
-  //     SizedBox(height: 20.0),
-  //     MyTextField(
-  //         controller: solution,
-  //         label: 'Solution',
-  //         icon: Icon(Icons.note_add),
-  //         maxLines: 3),
-  //     SizedBox(height: 20.0),
-  //     MyTextField(
-  //         controller: device_no,
-  //         icon: Icon(Icons.devices),
-  //         label: 'Device No.'),
-  //     SizedBox(height: 20),
-  //     MyTextField(
-  //         controller: created_by,
-  //         icon: Icon(Icons.supervised_user_circle),
-  //         label: 'Created by',
-  //         enabled: false),
-  //     SizedBox(height: 20),
-  //     _action == ManageJobAction.ready
-  //         ? FlatButton.icon(
-  //             icon: const Icon(Icons.add_circle_outline,
-  //                 size: 24, color: Colors.blue),
-  //             label: const Text('More',
-  //                 semanticsLabel: 'More',
-  //                 style: TextStyle(fontSize: 20, color: Colors.blue)),
-  //             onPressed: () {
-  //               setState(() {
-  //                 _action = ManageJobAction.readyMore;
-  //               });
-  //             },
-  //           )
-  //         : SizedBox(height: 0)
-  //   ];
-  //   Widget form = Container(
-  //       padding: EdgeInsets.symmetric(horizontal: 20),
-  //       child: Column(children: formContent));
-  //   if (_action == ManageJobAction.sent) {
-  //     column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
-  //   }
-  //   if (_action == ManageJobAction.readyMore) {
-  //     // formContent.add(ChipsTile(label: 'ประเภท', children: ));
-  //     formContent.add(Row(children: <Widget>[
-  //       GestureDetector(
-  //           child: Text('Category', style: TextStyle(fontSize: 16)),
-  //           onTap: () {
-  //             _showCategoriesDialog();
-  //           }),
-  //       SizedBox(width: 10),
-  //       DropdownSimple(
-  //           label: 'Category', list: _categories, onSelected: onCateSelected)
-  //     ]));
-  //     formContent.add(Row(children: <Widget>[
-  //       Text('Department', style: TextStyle(fontSize: 16)),
-  //       SizedBox(width: 10),
-  //       DropdownSimple(label: 'Department', list: _dept, onSelected: onDeptSelected)
-  //     ]));
-  //     formContent.add(Row(children: <Widget>[
-  //       Text('Section', style: TextStyle(fontSize: 16)),
-  //       SizedBox(width: 10),
-  //       DropdownSimple(
-  //           label: 'Section', list: _sect, onSelected: onSectSelected)
-  //     ]));
-  //     formContent.add(Row(children: <Widget>[SizedBox(height: 10), Text('Job_Date', style: TextStyle(fontSize: 16))],mainAxisAlignment: MainAxisAlignment.start));
-  //     formContent.add(Container(
-  //         padding: EdgeInsets.symmetric(horizontal: 0),
-  //         child: DateTimePicker(
-  //           // labelText: 'เหตุการณ์ ณ เวลา',
-  //           selectedDate: _fromDate,
-  //           selectedTime: _fromTime,
-  //           selectDate: (DateTime date) {
-  //             setState(() {
-  //               _fromDate = date;
-  //             });
-  //           },
-  //           selectTime: (TimeOfDay time) {
-  //             setState(() {
-  //               _fromTime = time;
-  //             });
-  //           },
-  //         )));
-  //     formContent.add(SizedBox(height: 20));
-  //   }
-  //   column.add(form);
-  //   return Column(children: column);
-  // }
 
   void submit() {
     setState(() {
@@ -607,4 +523,137 @@ class _NewEventPage extends State<NewEventPage> {
   void onSectSelected(String newValue) {
     _selectedSect = newValue.split(' ').first;
   }
+
+  void autoSentenseDialog() {
+    List<String> devices = ['Computer', 'Printer'];
+    TextEditingController summary = new TextEditingController();
+    TextEditingController device = new TextEditingController();
+    TextEditingController series = new TextEditingController();
+    TextEditingController number = new TextEditingController();
+    TextEditingController desc = new TextEditingController();
+    TextEditingController dept = new TextEditingController();
+    List<AutoSentence> options = [
+      AutoSentence('อุปกรณ์', Colors.blue[200], Colors.blue, device),
+      AutoSentence('รุ่น', Colors.green[200], Colors.green, series),
+      AutoSentence('เบอร์', Colors.blueGrey[200], Colors.blueGrey, number),
+      AutoSentence('แผนก', Colors.orangeAccent[200], Colors.orangeAccent, dept)
+    ]; //['อุปกรณ์', 'รุ่น', 'เบอร์', 'แผนก'];
+
+    List<Widget> devicesIcon = [
+      IconButton(
+        icon: CircleAvatar(
+            child: Icon(Icons.computer, color: Colors.white),
+            backgroundColor: Colors.blue[300]),
+        iconSize: 36,
+        onPressed: () {
+          setState(() {
+            device.text = devices[0];
+            summary.text =
+                '${device.text} ${series.text}, No.${series.text}, ${desc.text}, ${dept.text}';
+          });
+        },
+      ),
+      IconButton(
+        icon: CircleAvatar(
+            child: Icon(Icons.print, color: Colors.white),
+            backgroundColor: Colors.blue[300]),
+        iconSize: 36,
+        onPressed: () {
+          setState(() {
+            device.text = devices[1];
+            summary.text =
+                '${device.text} ${series.text}, No.${series.text}, ${desc.text}, ${dept.text}';
+          });
+        },
+      )
+    ];
+    List<Widget> optionsTextField = options
+        .map((o) => Flexible(
+            child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    summary.text =
+                        '${device.text} ${series.text}, No.${number.text}, ${desc.text}, ${dept.text}';
+                  });
+                },
+                controller: o.controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    hintText: o.label,
+                    fillColor: o.color,
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.all(Radius.circular(0))),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: o.borderColor, width: 2))),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold))))
+        .toList();
+    List<Widget> optionsColumn = [
+      Column(children: devicesIcon),
+      Container(),
+      Container(),
+      Container()
+    ];
+    Widget autoSentenceUI =
+        Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      TextField(
+          controller: summary,
+          maxLines: null,
+          decoration: InputDecoration(labelText: 'ตั้งประโยค')),
+      SizedBox(
+        height: 10,
+      ),
+      Row(children: optionsTextField),
+      SizedBox(height: 5),
+      TextField(
+          controller: job_desc,
+          onChanged: (value) {
+            setState(() {
+              summary.text =
+                  '${device.text} ${series.text}, No.${number.text}, ${job_desc.text}, ${dept.text}';
+            });
+          },
+          decoration: InputDecoration(labelText: 'ปัญหา', filled: true),
+          style: TextStyle(fontSize: 12)),
+      SizedBox(height: 5),
+      Row(children: optionsColumn),
+    ]);
+
+    Alert.autoSentenseDialog(
+        context: context,
+        title: 'Auto Sentence',
+        content: SingleChildScrollView(child: autoSentenceUI),
+        // height: MediaQuery.of(context).size.height * 0.45),
+        buttons: ['ตกลง']).then((onValue) {
+      if (onValue == 'ตกลง') {
+        print(summary.text);
+        setState(() {
+          job_desc.text = summary.text;
+        });
+      }
+    });
+
+    // Navigator.push(
+    //     context,
+    //     MaterialPageRoute<ManageJobAction>(
+    //       builder: (BuildContext context) => Scaffold(
+    //           appBar: AppBar(title: Text('Auto Sentences')),
+    //           body: Container(child: autoSentenceUI)),
+    //       fullscreenDialog: true,
+    //     )).then((result) {});
+  }
+}
+
+class AutoSentence {
+  String label;
+  Color color;
+  Color borderColor;
+  TextEditingController controller;
+  AutoSentence(this.label, this.color, this.borderColor, this.controller);
 }

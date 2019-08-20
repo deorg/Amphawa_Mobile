@@ -114,6 +114,40 @@ class Alert {
         );
   }
 
+  static Future<String> autoSentenseDialog(
+      {BuildContext context,
+      String title,
+      Widget content,
+      List<String> buttons}) {
+    return showDialog<String>(
+          barrierDismissible: true,
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                title,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              content: content,
+              actions: buttons == null
+                  ? null
+                  : buttons
+                      .map((name) => RaisedButton(
+                            child: Text(
+                              name,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop(
+                                  name); // Pops the confirmation dialog but not the page.
+                            },
+                          ))
+                      .toList(),
+            );
+          },
+        );
+  }
+
   static Future<String> dialogWithListItem(
       {BuildContext context, String title, List<Widget> list}) async {
     return await showDialog<String>(

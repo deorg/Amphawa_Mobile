@@ -54,7 +54,6 @@ class _Events extends State<Events> with TickerProviderStateMixin {
         key: _scaffoldKey,
         // appBar: searchBar.build(context),
         appBar: AppBar(
-            centerTitle: true,
             leading: IconButton(
                 icon: _today ? Icon(Icons.view_list) : Icon(Icons.today),
                 iconSize: 36,
