@@ -71,6 +71,7 @@ class _NewEventPage extends State<NewEventPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
+        resizeToAvoidBottomPadding: false,
         appBar: AppBar(
           leading: new IconButton(
             icon: new Icon(
@@ -536,7 +537,8 @@ class _NewEventPage extends State<NewEventPage> {
       AutoSentence('อุปกรณ์', Colors.blue[200], Colors.blue, device),
       AutoSentence('รุ่น', Colors.green[200], Colors.green, series),
       AutoSentence('เบอร์', Colors.blueGrey[200], Colors.blueGrey, number),
-      AutoSentence('แผนก', Colors.orangeAccent[200], Colors.orangeAccent, dept)
+      AutoSentence('แผนก', Colors.orangeAccent[200], Colors.orangeAccent, dept),
+      AutoSentence('ปัญหา', Colors.red[200], Colors.red, desc)
     ]; //['อุปกรณ์', 'รุ่น', 'เบอร์', 'แผนก'];
 
     List<Widget> devicesIcon = [
@@ -556,6 +558,19 @@ class _NewEventPage extends State<NewEventPage> {
       IconButton(
         icon: CircleAvatar(
             child: Icon(Icons.print, color: Colors.white),
+            backgroundColor: Colors.blue[300]),
+        iconSize: 36,
+        onPressed: () {
+          setState(() {
+            device.text = devices[1];
+            summary.text =
+                '${device.text} ${series.text}, No.${series.text}, ${desc.text}, ${dept.text}';
+          });
+        },
+      ),
+      IconButton(
+        icon: CircleAvatar(
+            child: Icon(Icons.tablet_android, color: Colors.white),
             backgroundColor: Colors.blue[300]),
         iconSize: 36,
         onPressed: () {
@@ -588,14 +603,21 @@ class _NewEventPage extends State<NewEventPage> {
                         borderRadius: BorderRadius.all(Radius.circular(0))),
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: o.borderColor, width: 2))),
+                        borderSide:
+                            BorderSide(color: o.borderColor, width: 2))),
                 style: TextStyle(
                     fontSize: 12,
                     color: Colors.white,
                     fontWeight: FontWeight.bold))))
         .toList();
-    List<Widget> optionsColumn = [
-      Column(children: devicesIcon),
+    // List<Widget> optionsColumn = [
+    //   Column(children: devicesIcon),
+    //   Container(),
+    //   Container(),
+    //   Container()
+    // ];
+    List<Widget> optionsRow = [
+      Row(children: devicesIcon),
       Container(),
       Container(),
       Container()
@@ -605,29 +627,189 @@ class _NewEventPage extends State<NewEventPage> {
       TextField(
           controller: summary,
           maxLines: null,
-          decoration: InputDecoration(labelText: 'ตั้งประโยค')),
+          decoration: InputDecoration(labelText: 'รวมเป็น ต.ย.')),
       SizedBox(
         height: 10,
       ),
-      Row(children: optionsTextField),
-      SizedBox(height: 5),
-      TextField(
-          controller: job_desc,
-          onChanged: (value) {
-            setState(() {
-              summary.text =
-                  '${device.text} ${series.text}, No.${number.text}, ${job_desc.text}, ${dept.text}';
-            });
-          },
-          decoration: InputDecoration(labelText: 'ปัญหา', filled: true),
-          style: TextStyle(fontSize: 12)),
-      SizedBox(height: 5),
-      Row(children: optionsColumn),
+      Row(children: <Widget>[
+        SizedBox(
+            width: 70,
+            child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    summary.text =
+                        '${device.text} ${series.text}, No.${number.text}, ${desc.text}, ${dept.text}';
+                  });
+                },
+                controller: options[0].controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    hintText: options[0].label,
+                    fillColor: options[0].color,
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.all(Radius.circular(0))),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: options[0].borderColor, width: 2))),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold))),
+        SingleChildScrollView(
+            scrollDirection: Axis.horizontal, child: Row(children: devicesIcon))
+      ]),
+      Row(children: <Widget>[
+        SizedBox(
+            width: 70,
+            child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    summary.text =
+                        '${device.text} ${series.text}, No.${number.text}, ${desc.text}, ${dept.text}';
+                  });
+                },
+                controller: options[1].controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    hintText: options[1].label,
+                    fillColor: options[1].color,
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.all(Radius.circular(0))),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: options[1].borderColor, width: 2))),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold))),
+        SizedBox(width: 10),
+        Flexible(child: TextField(onChanged: (value) {
+          series.text = value;
+        }, decoration: InputDecoration(filled: true),))
+      ]),
+      Row(children: <Widget>[
+        SizedBox(
+            width: 70,
+            child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    summary.text =
+                        '${device.text} ${series.text}, No.${number.text}, ${desc.text}, ${dept.text}';
+                  });
+                },
+                controller: options[2].controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    hintText: options[2].label,
+                    fillColor: options[2].color,
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.all(Radius.circular(0))),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: options[1].borderColor, width: 2))),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold))),
+        SizedBox(width: 10),
+        Flexible(child: TextField(onChanged: (value) {
+          number.text = value;
+        }, decoration: InputDecoration(filled: true),))
+      ]),
+      Row(children: <Widget>[
+        SizedBox(
+            width: 70,
+            child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    summary.text =
+                        '${device.text} ${series.text}, No.${number.text}, ${desc.text}, ${dept.text}';
+                  });
+                },
+                controller: options[3].controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    hintText: options[3].label,
+                    fillColor: options[3].color,
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.all(Radius.circular(0))),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: options[3].borderColor, width: 2))),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold))),
+        SizedBox(width: 10),
+        Flexible(child: TextField(decoration: InputDecoration(filled: true)))
+      ]),
+      Row(children: <Widget>[
+        SizedBox(
+            width: 70,
+            child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    summary.text =
+                        '${device.text} ${series.text}, No.${number.text}, ${desc.text}, ${dept.text}';
+                  });
+                },
+                controller: options[4].controller,
+                textAlign: TextAlign.center,
+                decoration: InputDecoration(
+                    hintStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    hintText: options[4].label,
+                    fillColor: options[4].color,
+                    enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.all(Radius.circular(0))),
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: options[4].borderColor, width: 2))),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold))),
+        SizedBox(width: 10),
+        Flexible(child: TextField(onChanged: (value){desc.text = value;}, decoration: InputDecoration(filled: true, focusColor: Colors.red)))
+      ])
+
+      // Row(children: optionsTextField),
+      // SizedBox(height: 5),
+      // TextField(
+      //     controller: job_desc,
+      //     onChanged: (value) {
+      //       setState(() {
+      //         summary.text =
+      //             '${device.text} ${series.text}, No.${number.text}, ${job_desc.text}, ${dept.text}';
+      //       });
+      //     },
+      //     decoration: InputDecoration(labelText: 'ปัญหา', filled: true),
+      //     style: TextStyle(fontSize: 12)),
+      // SizedBox(height: 5),
+      // Row(children: optionsColumn),
     ]);
 
     Alert.autoSentenseDialog(
         context: context,
-        title: 'Auto Sentence',
+        title: 'Assist',
         content: SingleChildScrollView(child: autoSentenceUI),
         // height: MediaQuery.of(context).size.height * 0.45),
         buttons: ['ตกลง']).then((onValue) {
@@ -638,15 +820,6 @@ class _NewEventPage extends State<NewEventPage> {
         });
       }
     });
-
-    // Navigator.push(
-    //     context,
-    //     MaterialPageRoute<ManageJobAction>(
-    //       builder: (BuildContext context) => Scaffold(
-    //           appBar: AppBar(title: Text('Auto Sentences')),
-    //           body: Container(child: autoSentenceUI)),
-    //       fullscreenDialog: true,
-    //     )).then((result) {});
   }
 }
 
