@@ -30,7 +30,7 @@ class _EditEventPage extends State<EditEventPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ManageJobAction _action = ManageJobAction.ready;
   bool _completed = true;
-  String _status = 'Completed';
+  String _status;
   List<String> _dept = [];
   List<String> _sect = [];
   List<Category> _rawCate = [];
@@ -45,7 +45,7 @@ class _EditEventPage extends State<EditEventPage> {
   TextEditingController solution = new TextEditingController();
   TextEditingController device_no = new TextEditingController();
   TextEditingController created_by =
-      new TextEditingController(text: 'Nuttapat Chaiprapun');
+      new TextEditingController();
   TextEditingController date_time = new TextEditingController();
   TextEditingController category = new TextEditingController();
   TextEditingController department = new TextEditingController();
@@ -62,6 +62,7 @@ class _EditEventPage extends State<EditEventPage> {
     device_no.text = widget.job.device_no;
     created_by.text = widget.job.created_by;
     _completed = widget.job.job_status == 'completed' ? true : false;
+    _status = _completed == true ? 'Completed' : 'In Progress';
     _fromDate = widget.job.job_date;
 
     DeptService.fetchDept(
@@ -102,7 +103,7 @@ class _EditEventPage extends State<EditEventPage> {
                 tooltip: 'Delete'),
             IconButton(
                 icon: Icon(Icons.content_copy, size: 30), onPressed: () => duplicate()),
-            IconButton(icon: Icon(Icons.save, size: 36), onPressed:() => submit(saveAs: false)),
+            IconButton(icon: Icon(Icons.save, size: 36), onPressed:() => overwrite()),
             // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
           ],
         ),
@@ -223,6 +224,13 @@ class _EditEventPage extends State<EditEventPage> {
           fillColor: fillColor,
           filled: true),
       SizedBox(height: 10),
+      MyTextField(
+          controller: created_by,
+          prefixIcon: Icon(Icons.person_pin),
+          fillColor: fillColor,
+          filled: true,
+          label: 'Created by'),
+          SizedBox(height: 15),
       Container(
           decoration: BoxDecoration(
               color: Colors.indigo[50],

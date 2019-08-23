@@ -1,4 +1,5 @@
 import 'package:amphawa/helper/thaiDate.dart';
+import 'package:amphawa/model/job.dart';
 import 'package:amphawa/themes/circleAvartar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -104,7 +105,8 @@ class ListItem extends StatelessWidget {
       this.status,
       this.tooltip,
       this.onPressed,
-      this.number})
+      this.number,
+      this.job})
       // : assert(lines.length > 1),
       : super(key: key);
 
@@ -115,21 +117,66 @@ class ListItem extends StatelessWidget {
   final String tooltip;
   final VoidCallback onPressed;
   final int number;
+  final Job job;
   Color _completed = Colors.lightGreen[200];
   Color _inProgress = Colors.lightBlueAccent[100];
   // List colors = [Colors.lightGreen[200], Colors.red[200], Colors.amber[200]];
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> columnChildren = lines
-        .sublist(0, lines.length)
-        // .sublist(0, lines.length - 1)
-        .map<Widget>((String line) => Text(line,
-            style: lines.indexOf(line) == 0
-                ? TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-                : null))
-        .toList();
+    // final List<Widget> columnChildren = lines
+    //     .sublist(0, lines.length)
+    //     // .sublist(0, lines.length - 1)
+    //     .map<Widget>((String line) => Text(line,
+    //         style: lines.indexOf(line) == 0
+    //             ? TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+    //             : null))
+    //     .toList();
+
     // columnChildren.add(Text(lines.last, style: themeData.textTheme.caption));
+
+    final List<Widget> columnChildren = [];
+    if (job.job_desc != null) {
+      columnChildren.add(Row(children: <Widget>[
+        Expanded(child: Text(job.job_desc,
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)))
+      ]));
+    }
+    if (job.solution != "") {
+      columnChildren.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+        Text('Soln:'),
+        SizedBox(width: 20),
+        Expanded(child: Text(job.solution))
+      ]));
+    }
+    if (job.cate_id != null) {
+      columnChildren.add(Row(children: <Widget>[
+        Text('Cate:'),
+        SizedBox(width: 10),
+        Text('\t\t' + job.cate_id.join(", "))
+      ]));
+    }
+    if (job.dept_id != "") {
+      columnChildren.add(Row(children: <Widget>[
+        Text('Dept:'),
+        SizedBox(width: 10),
+        Text('\t\t' + job.dept_id)
+      ]));
+    }
+    if (job.sect_id != "") {
+      columnChildren.add(Row(children: <Widget>[
+        Text('Sect:'),
+        SizedBox(width: 10),
+        Text('\t\t' + job.sect_id)
+      ]));
+    }
+    if (job.created_by != '') {
+      columnChildren.add(Row(children: <Widget>[
+        Text('Writer:'),
+        SizedBox(width: 10),
+        Text(job.created_by)
+      ]));
+    }
 
     final List<Widget> rowChildren = <Widget>[
       Padding(
@@ -138,8 +185,7 @@ class ListItem extends StatelessWidget {
             Text(
                 '${date.day}-${ThaiDate(date).thaiShortMonth}-${ThaiDate(date).thaiShortYear}',
                 style: TextStyle(fontSize: 12)),
-            Text(
-                '${ThaiDate(date).thaiShortDay}',
+            Text('${ThaiDate(date).thaiShortDay}',
                 style: TextStyle(fontSize: 12)),
             SizedBox(
               height: 5,
@@ -161,11 +207,13 @@ class ListItem extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 10),
           child: GestureDetector(
               onTap: onPressed,
-              child: SingleChildScrollView(physics: NeverScrollableScrollPhysics(), child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: columnChildren,
-              ))),
+              child: SingleChildScrollView(
+                  physics: NeverScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: columnChildren,
+                  ))),
         ),
       ),
       Container(

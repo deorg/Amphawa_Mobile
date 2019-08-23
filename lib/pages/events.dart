@@ -136,7 +136,7 @@ class _Events extends State<Events> with TickerProviderStateMixin {
   }
 
   Widget _buildFetchCompleteUI() {
-    var displayJobs = [];
+    List<Job> displayJobs = [];
     if (_today) {
       displayJobs = jobs
           .where((j) =>
@@ -166,14 +166,15 @@ class _Events extends State<Events> with TickerProviderStateMixin {
               if (displayJobs[index].job_desc != null)
                 lines.add(displayJobs[index].job_desc);
               if (displayJobs[index].solution != "")
-                lines.add("Solution: " + displayJobs[index].solution);
+                lines.add("Sol: \t" + displayJobs[index].solution);
               if (displayJobs[index].cate_id != null)
-                lines.add("Category: " + displayJobs[index].cate_id.join(", "));
+                lines.add("Cate: \t\t" + displayJobs[index].cate_id.join(", "));
               if (displayJobs[index].dept_id != "")
-                lines.add("Department: " + displayJobs[index].dept_id);
+                lines.add("Dept: \t\t" + displayJobs[index].dept_id);
               if (displayJobs[index].sect_id != "")
-                lines.add("Section: " + displayJobs[index].sect_id);
-
+                lines.add("Sect: \t\t" + displayJobs[index].sect_id);
+              if (displayJobs[index].created_by != '')
+                lines.add('Writer: ' + displayJobs[index].created_by);
               return Dismissible(
                   key: Key(displayJobs[index].job_id.toString()),
                   background: Container(
@@ -246,10 +247,12 @@ class _Events extends State<Events> with TickerProviderStateMixin {
                                 child: InkWell(
                                     child: ListItem(
                                         date: displayJobs[index].job_date,
-                                        number: index + 1,
+                                        number: displayJobs.length - index,
+                                        // number: index + 1,
                                         icon: Icons.note_add,
                                         lines: lines,
-                                        status: displayJobs[index].job_status),
+                                        status: displayJobs[index].job_status,
+                                        job: displayJobs[index]),
                                     onTap: () {
                                       Navigator.push(
                                           context,
