@@ -143,11 +143,12 @@ class ListItem extends StatelessWidget {
       ]));
     }
     if (job.solution != "") {
-      columnChildren.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-        Text('Soln:'),
-        SizedBox(width: 20),
-        Expanded(child: Text(job.solution))
-      ]));
+      columnChildren.add(Text('Soln: \t\t\t\t' + job.solution));
+      // columnChildren.add(Row(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+      //   Text('Soln:'),
+      //   SizedBox(width: 20),
+      //   Expanded(child: Text(job.solution))
+      // ]));
     }
     if (job.cate_id != null) {
       columnChildren.add(Row(children: <Widget>[

@@ -6,7 +6,7 @@ import 'package:amphawa/widgets/contact.dart';
 import 'package:amphawa/widgets/dialog/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
-import 'package:flutter_search_bar/flutter_search_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'manageEvent.dart';
 
 enum JobFetchAction { fetch, blank, error, complete, timeout }
@@ -22,10 +22,10 @@ class _Events extends State<Events> with TickerProviderStateMixin {
   DateTime datetime = new DateTime.now();
   JobFetchAction action;
   bool _today = false;
+  bool _progress = false;
   bool _expand = true;
   List<Job> jobs = new List<Job>();
   final refreshKey = GlobalKey<RefreshIndicatorState>();
-  SearchBar searchBar;
   // PermissionStatus _permissionStatus;
 
   @override
@@ -66,6 +66,14 @@ class _Events extends State<Events> with TickerProviderStateMixin {
             title: Text('Job List',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
             actions: <Widget>[
+              IconButton(
+                icon: _progress
+                    ? Icon(FontAwesomeIcons.list, color: Colors.white)
+                    : Icon(FontAwesomeIcons.tasks, color: Colors.white),
+                    onPressed: (){setState(() {
+                     _progress = !_progress; 
+                    });},
+              ),
               IconButton(
                   icon: _expand
                       ? Icon(Icons.expand_less)
@@ -137,17 +145,26 @@ class _Events extends State<Events> with TickerProviderStateMixin {
 
   Widget _buildFetchCompleteUI() {
     List<Job> displayJobs = [];
+    displayJobs = jobs;
     if (_today) {
-      displayJobs = jobs
+      displayJobs = displayJobs
           .where((j) =>
               j.job_date.day == DateTime.now().day &&
               j.job_date.month == DateTime.now().month &&
               j.job_date.year == DateTime.now().year)
           .toList();
       print('display job => ${displayJobs.length}');
-    } else {
-      displayJobs = jobs;
+    } 
+    if(_progress){
+      displayJobs = displayJobs
+          .where((j) =>
+              j.job_status != 'completed')
+          .toList();
+      print('display job => ${displayJobs.length}');
     }
+    // else {
+    //   displayJobs = jobs;
+    // }
     return RefreshIndicator(
         key: refreshKey,
         onRefresh: () {

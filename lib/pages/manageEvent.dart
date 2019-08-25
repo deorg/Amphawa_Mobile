@@ -550,43 +550,54 @@ class _NewEventPage extends State<NewEventPage> {
       AutoSentence('แผนก', Colors.orangeAccent[200], Colors.orangeAccent, dept),
       AutoSentence('ปัญหา', Colors.red[200], Colors.red, desc)
     ]; //['อุปกรณ์', 'รุ่น', 'เบอร์', 'แผนก'];
+    List<String> depts = [
+      'ข้อมูลกลาง',
+      'บัญชี',
+      'บริหารเครดิต',
+      'MIS'
+          'ทีมติดตาม',
+      'ส่วนกลาง',
+      'บริหาร',
+      'MD',
+      'บริหารข้อมูลกลาง',
+      'ตรวจสอบภายนอก',
+      'เร่งรัด',
+      'อาคารสถานที่',
+      'ทดลองงาน'
+    ];
 
     List<Widget> devicesIcon = [
-      InkWell(child: Padding(padding: EdgeInsets.symmetric(horizontal: 5), child: Column(children: <Widget>[
-          SizedBox(height: 30, width: 30, child: CircleAvatar(
-              child: Icon(Icons.computer, color: Colors.white),
-              backgroundColor: Colors.blue[300])),
-          Text('PC', style: TextStyle(fontSize: 10))
-        ])), onTap: (){
-        setState(() {
-            device.text = devices[0];
-            summary.text =
-                '${device.text} ${series.text} ${series.text} ${desc.text} ${dept.text}';
-          });
-      }),
-      // IconButton(
-      //   icon: Column(children: <Widget>[
-      //     SizedBox(height: 30, width: 30, child: CircleAvatar(
-      //         child: Icon(Icons.computer, color: Colors.white),
-      //         backgroundColor: Colors.blue[300])),
-      //     Text('PC', style: TextStyle(fontSize: 10))
-      //   ]),
-      //   iconSize: 48,
-      //   onPressed: () {
-      //     setState(() {
-      //       device.text = devices[0];
-      //       summary.text =
-      //           '${device.text} ${series.text} ${series.text} ${desc.text} ${dept.text}';
-      //     });
-      //   },
-      // ),
       InkWell(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 5), child: Column(children: <Widget>[
-          SizedBox(height: 30, width: 30, child: CircleAvatar(
-              child: Icon(Icons.print, color: Colors.white),
-              backgroundColor: Colors.blue[300])),
-          Text('Printer', style: TextStyle(fontSize: 10))
-        ])),
+          child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Column(children: <Widget>[
+                SizedBox(
+                    height: 30,
+                    width: 30,
+                    child: CircleAvatar(
+                        child: Icon(Icons.computer, color: Colors.white),
+                        backgroundColor: Colors.blue[300])),
+                Text('PC', style: TextStyle(fontSize: 10))
+              ])),
+          onTap: () {
+            setState(() {
+              device.text = devices[0];
+              summary.text =
+                  '${device.text} ${series.text} ${series.text} ${desc.text} ${dept.text}';
+            });
+          }),
+      InkWell(
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Column(children: <Widget>[
+              SizedBox(
+                  height: 30,
+                  width: 30,
+                  child: CircleAvatar(
+                      child: Icon(Icons.print, color: Colors.white),
+                      backgroundColor: Colors.blue[300])),
+              Text('Printer', style: TextStyle(fontSize: 10))
+            ])),
         onTap: () {
           setState(() {
             device.text = devices[1];
@@ -596,12 +607,17 @@ class _NewEventPage extends State<NewEventPage> {
         },
       ),
       InkWell(
-        child: Padding(padding: EdgeInsets.symmetric(horizontal: 5), child: Column(children: <Widget>[
-          SizedBox(height: 30, width: 30, child: CircleAvatar(
-              child: Icon(Icons.tablet_android, color: Colors.white),
-              backgroundColor: Colors.blue[300])),
-          Text('GT', style: TextStyle(fontSize: 10))
-        ])),
+        child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Column(children: <Widget>[
+              SizedBox(
+                  height: 30,
+                  width: 30,
+                  child: CircleAvatar(
+                      child: Icon(Icons.tablet_android, color: Colors.white),
+                      backgroundColor: Colors.blue[300])),
+              Text('GT', style: TextStyle(fontSize: 10))
+            ])),
         onTap: () {
           setState(() {
             device.text = devices[2];
@@ -611,46 +627,7 @@ class _NewEventPage extends State<NewEventPage> {
         },
       )
     ];
-    List<Widget> optionsTextField = options
-        .map((o) => Flexible(
-            child: TextField(
-                onChanged: (value) {
-                  setState(() {
-                    summary.text =
-                        '${device.text} ${series.text}, No.${number.text}, ${desc.text}, ${dept.text}';
-                  });
-                },
-                controller: o.controller,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    hintStyle: TextStyle(color: Colors.white),
-                    filled: true,
-                    hintText: o.label,
-                    fillColor: o.color,
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.all(Radius.circular(0))),
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide:
-                            BorderSide(color: o.borderColor, width: 2))),
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold))))
-        .toList();
-    // List<Widget> optionsColumn = [
-    //   Column(children: devicesIcon),
-    //   Container(),
-    //   Container(),
-    //   Container()
-    // ];
-    List<Widget> optionsRow = [
-      Row(children: devicesIcon),
-      Container(),
-      Container(),
-      Container()
-    ];
+
     Widget autoSentenceUI =
         Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
       TextField(
@@ -776,46 +753,59 @@ class _NewEventPage extends State<NewEventPage> {
                   EdgeInsets.symmetric(vertical: 10, horizontal: 10)),
         ))
       ]),
-      Row(children: <Widget>[
-        SizedBox(
-            width: 70,
-            child: TextField(
-                controller: options[3].controller,
-                textAlign: TextAlign.center,
-                decoration: InputDecoration(
-                    contentPadding: EdgeInsets.symmetric(vertical: 15),
-                    hintStyle: TextStyle(color: Colors.white),
-                    filled: true,
-                    hintText: options[3].label,
-                    fillColor: options[3].color,
-                    enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.all(Radius.circular(0))),
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                            color: options[3].borderColor, width: 2))),
-                style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold))),
-        SizedBox(width: 10),
-        Flexible(
-            child: TextField(
-                onChanged: (value) {
-                  setState(() {
-                    dept.text = value;
-                    summary.text =
-                        '${device.text} ${series.text} ${number.text} ${desc.text} ${dept.text}';
-                  });
-                },
-                style: TextStyle(fontSize: 12),
-                decoration: InputDecoration(
-                    filled: true,
-                    contentPadding: EdgeInsets.symmetric(
-                        vertical: 10,
-                        horizontal:
-                            10)))), // Row(children: <Widget>[Flexible(child: TextField(decoration: InputDecoration(filled: true)))])
+      Stack(children: <Widget>[
+        Align(
+            alignment: Alignment.centerLeft,
+            child: SizedBox(
+                width: 70,
+                child: TextField(
+                    controller: options[3].controller,
+                    textAlign: TextAlign.center,
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(vertical: 15),
+                        hintStyle: TextStyle(color: Colors.white),
+                        filled: true,
+                        hintText: options[3].label,
+                        fillColor: options[3].color,
+                        enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.all(Radius.circular(0))),
+                        border: OutlineInputBorder(),
+                        focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: options[3].borderColor, width: 2))),
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold)))),
+        Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+                width: MediaQuery.of(context).size.width * 0.37,
+                child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                        children: depts
+                            .map((d) => Padding(
+                                padding: EdgeInsets.only(right: 3),
+                                child: SizedBox(
+                                    width: 50,
+                                    child: FlatButton(
+                                        padding:
+                                            EdgeInsets.symmetric(horizontal: 0),
+                                        child: Text(d,
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold),
+                                            textAlign: TextAlign.center),
+                                        onPressed: () {
+                                          dept.text = d;
+                                          summary.text =
+                                              '${device.text} ${series.text} ${number.text} ${desc.text} ${dept.text}';
+                                        },
+                                        color: Colors.orange[300]))))
+                            .toList()))))
       ]),
       Row(children: <Widget>[
         SizedBox(
