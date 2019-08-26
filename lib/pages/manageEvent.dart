@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:amphawa/model/category.dart';
 import 'package:amphawa/model/dept.dart';
 import 'package:amphawa/model/job.dart';
+import 'package:amphawa/model/photo.dart';
 import 'package:amphawa/model/sect.dart';
+import 'package:amphawa/pages/viewPhoto.dart';
 import 'package:amphawa/services/category.dart';
 import 'package:amphawa/services/department.dart';
 import 'package:amphawa/services/jobs.dart';
@@ -16,8 +20,9 @@ import 'package:amphawa/widgets/form/myTextField.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
-
+import 'package:dotted_border/dotted_border.dart';
 import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
 
 enum ManageJobAction { ready, readyMore, sent, completed }
 
@@ -51,6 +56,7 @@ class _NewEventPage extends State<NewEventPage> {
   TextEditingController department = new TextEditingController();
   TextEditingController section = new TextEditingController();
   double _progress = 0;
+  List<Photo> _images = [];
 
   @override
   void initState() {
@@ -299,7 +305,14 @@ class _NewEventPage extends State<NewEventPage> {
                     setState(() {
                       _fromTime = time;
                     });
-                  })
+                  }),
+              SizedBox(height: 10),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Photo',
+                      style: TextStyle(fontSize: 18, color: Colors.grey[700]))),
+              SizedBox(height: 5),
+              _imagesForm()
             ])
           ]))
     ];
@@ -314,22 +327,27 @@ class _NewEventPage extends State<NewEventPage> {
             height: MediaQuery.of(context).size.height * 0.7,
             child:
                 SingleChildScrollView(child: Column(children: formContent))));
-    // if (_action == ManageJobAction.sent) {
-    //   column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
-    // }
     column.add(form);
-    return Column(children: <Widget>[
-      _action == ManageJobAction.sent
-          ? SizedBox(height: 10, child: LinearProgressIndicator())
-          : SizedBox(height: 0),
-      Padding(
-          padding: EdgeInsets.only(left: 10, right: 10, top: 20),
-          child: Card(
-              child: Column(
-                  children: column,
-                  crossAxisAlignment: CrossAxisAlignment.stretch),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15))))
+    return Stack(children: <Widget>[
+      Column(children: <Widget>[
+        _action == ManageJobAction.sent
+            ? SizedBox(height: 10, child: LinearProgressIndicator())
+            : SizedBox(height: 0),
+        Padding(
+            padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+            child: Card(
+                child: Column(
+                    children: column,
+                    crossAxisAlignment: CrossAxisAlignment.stretch),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))))
+      ]),
+      // Center(
+      //     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
+      //   CircularProgressIndicator(),
+      //   SizedBox(height: 5),
+      //   Text('กำลังส่งข้อมูล')
+      // ]))
     ]);
   }
 
@@ -405,7 +423,7 @@ class _NewEventPage extends State<NewEventPage> {
     print('time out');
     setState(() {
       _action = ManageJobAction.ready;
-      Alert.snackBar(_scaffoldKey, 'หมดเวลาในการส่งข้อมูล');
+      Alert.snackBar(_scaffoldKey, 'ห��ดเวลาในการส่งข้อมูล');
     });
   }
 
@@ -413,7 +431,7 @@ class _NewEventPage extends State<NewEventPage> {
     print(onError);
     setState(() {
       _action = ManageJobAction.ready;
-      Alert.snackBar(_scaffoldKey, 'พบข้อผิดพลาดในการส่งข้อมูล');
+      Alert.snackBar(_scaffoldKey, '���บข้อผิดพลาดในการส่งข้อมูล');
     });
   }
 
@@ -531,6 +549,120 @@ class _NewEventPage extends State<NewEventPage> {
     _selectedSect = newValue.split(' ').first;
   }
 
+  Widget _imagesForm() {
+    return DottedBorder(
+        padding: EdgeInsets.all(10),
+        dashPattern: [5],
+        color: Colors.grey[400],
+        strokeWidth: 1,
+        child: Container(
+            width: double.infinity,
+            height: 140,
+            child: _images.length == 0
+                ? Center(
+                    child: InkWell(
+                        child:
+                            Text('Add photo', style: TextStyle(fontSize: 24)),
+                        onTap: () {
+                          ImagePicker.pickImage(source: ImageSource.camera)
+                              .then((value) {
+                            print(
+                                'image path => ' + value.path.split('/').last);
+                            setState(() {
+                              _images.add(new Photo(photo: value, name: value.path.split('/').last));
+                              print('images length => ${_images.length}');
+                            });
+                          });
+                        }))
+                : Column(children: <Widget>[
+                    SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                            children: _images
+                                .map((f) => Container(
+                                        child: Stack(children: <Widget>[
+                                      Container(
+                                          margin: EdgeInsets.only(right: 10),
+                                          child: InkWell(
+                                              child: Image.file(
+                                                f.photo,
+                                                fit: BoxFit.cover,
+                                              ),
+                                              onTap: () {
+                                                print('photo index of => ${_images.indexOf(f)}');
+                                                print('tag name => temp_photo_${f.tag}');
+                                                Navigator.push(context,
+                                                    MaterialPageRoute<void>(
+                                                        builder: (BuildContext
+                                                            context) {
+                                                  return Scaffold(
+                                                    backgroundColor:
+                                                        Colors.black,
+                                                    appBar: AppBar(
+                                                      title: Text('View Photo'),
+                                                    ),
+                                                    body: SizedBox.expand(
+                                                      child: Hero(
+                                                        tag: f.tag,
+                                                        child:
+                                                            ViewPhoto(photo: f.photo),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }));
+                                              }),
+                                          width: 120,
+                                          height: 100),
+                                      Container(
+                                          width: 120,
+                                          height: 100,
+                                          child: Align(
+                                              alignment: Alignment.topRight,
+                                              child: SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child: FloatingActionButton(
+                                                      backgroundColor:
+                                                          Colors.red[300],
+                                                      child: Icon(Icons.close,
+                                                          size: 18),
+                                                      onPressed: () async {
+                                                        var res = await Alert.dialogWithUiContent(
+                                                            context: context,
+                                                            title:
+                                                                'Delete Photo',
+                                                            content: Text(
+                                                                "Are you sure you want to delete this photo?"),
+                                                            buttons: [
+                                                              'Yes',
+                                                              'No'
+                                                            ]);
+                                                        if (res == 'Yes') {
+                                                          setState(() {
+                                                            _images.remove(f);
+                                                          });
+                                                        }
+                                                      }))))
+                                    ])))
+                                .toList())),
+                    SizedBox(height: 10),
+                    InkWell(
+                        child: Text('Add more photo',
+                            style: TextStyle(fontSize: 18)),
+                        onTap: () {
+                          ImagePicker.pickImage(source: ImageSource.camera)
+                              .then((onValue) {
+                            print('image path => ' +
+                                onValue.path.split('/').last);
+                            setState(() {
+                              _images.add(new Photo(photo: onValue, name: onValue.path.split('/').last));
+                              print('images length => ${_images.length}');
+                            });
+                          });
+                        })
+                  ])));
+  }
+
   void autoSentenseDialog() {
     List<String> devices = ['Computer', 'Printer', 'GT'];
     TextEditingController summary = new TextEditingController();
@@ -554,8 +686,8 @@ class _NewEventPage extends State<NewEventPage> {
       'ข้อมูลกลาง',
       'บัญชี',
       'บริหารเครดิต',
-      'MIS'
-          'ทีมติดตาม',
+      'MIS',
+      'ทีมติดตาม',
       'ส่วนกลาง',
       'บริหาร',
       'MD',

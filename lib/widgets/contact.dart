@@ -119,7 +119,7 @@ class ListItem extends StatelessWidget {
   final int number;
   final Job job;
   Color _completed = Colors.lightGreen[200];
-  Color _inProgress = Colors.lightBlueAccent[100];
+  Color _inProgress = Colors.red[200];
   // List colors = [Colors.lightGreen[200], Colors.red[200], Colors.amber[200]];
 
   @override
