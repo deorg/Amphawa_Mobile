@@ -780,7 +780,7 @@ class _NewEventPage extends State<NewEventPage> {
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(vertical: 15),
-                        hintStyle: TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.black),
                         filled: true,
                         hintText: options[0].label,
                         alignLabelWithHint: true,
@@ -794,7 +794,7 @@ class _NewEventPage extends State<NewEventPage> {
                                 color: options[0].borderColor, width: 2))),
                     style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold)))),
         Align(
             alignment: Alignment.centerRight,
@@ -812,7 +812,7 @@ class _NewEventPage extends State<NewEventPage> {
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
-                    hintStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.black),
                     filled: true,
                     hintText: options[1].label,
                     fillColor: options[1].color,
@@ -825,7 +825,7 @@ class _NewEventPage extends State<NewEventPage> {
                             color: options[1].borderColor, width: 2))),
                 style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold))),
         SizedBox(width: 10),
         Flexible(
@@ -851,7 +851,7 @@ class _NewEventPage extends State<NewEventPage> {
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
-                    hintStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.black),
                     filled: true,
                     hintText: options[2].label,
                     fillColor: options[2].color,
@@ -864,7 +864,7 @@ class _NewEventPage extends State<NewEventPage> {
                             color: options[1].borderColor, width: 2))),
                 style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold))),
         SizedBox(width: 10),
         Flexible(
@@ -895,7 +895,7 @@ class _NewEventPage extends State<NewEventPage> {
                     textAlign: TextAlign.center,
                     decoration: InputDecoration(
                         contentPadding: EdgeInsets.symmetric(vertical: 15),
-                        hintStyle: TextStyle(color: Colors.white),
+                        hintStyle: TextStyle(color: Colors.black),
                         filled: true,
                         hintText: options[3].label,
                         fillColor: options[3].color,
@@ -908,7 +908,7 @@ class _NewEventPage extends State<NewEventPage> {
                                 color: options[3].borderColor, width: 2))),
                     style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white,
+                        color: Colors.black,
                         fontWeight: FontWeight.bold)))),
         Align(
             alignment: Alignment.centerRight,
@@ -947,7 +947,7 @@ class _NewEventPage extends State<NewEventPage> {
                 textAlign: TextAlign.center,
                 decoration: InputDecoration(
                     contentPadding: EdgeInsets.symmetric(vertical: 15),
-                    hintStyle: TextStyle(color: Colors.white),
+                    hintStyle: TextStyle(color: Colors.black),
                     filled: true,
                     hintText: options[4].label,
                     fillColor: options[4].color,
@@ -960,7 +960,7 @@ class _NewEventPage extends State<NewEventPage> {
                             color: options[4].borderColor, width: 2))),
                 style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.bold))),
         SizedBox(width: 10),
         Flexible(
