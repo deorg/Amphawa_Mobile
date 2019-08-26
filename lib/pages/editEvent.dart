@@ -513,14 +513,14 @@ class _EditEventPage extends State<EditEventPage> {
   }
 
   Future overwrite() async {
-    var res = await Alert.dialogWithUiContent(
-        context: context,
-        title: 'Overwrite job',
-        content: Text("Are you sure you want to Overwrite this job?"),
-        buttons: ['Yes', 'No']);
-    if (res == 'Yes') {
+    // var res = await Alert.dialogWithUiContent(
+    //     context: context,
+    //     title: 'Overwrite job',
+    //     content: Text("Are you sure you want to Overwrite this job?"),
+    //     buttons: ['Yes', 'No']);
+    // if (res == 'Yes') {
       submit(saveAs: false);
-    }
+    // }
   }
 
   void onSending(sent, total) {

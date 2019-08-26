@@ -563,8 +563,8 @@ class _NewEventPage extends State<NewEventPage> {
                     child: InkWell(
                         child:
                             Text('Add photo', style: TextStyle(fontSize: 24)),
-                        onTap: () {
-                          ImagePicker.pickImage(source: ImageSource.camera)
+                        onTap: () async {
+                          await ImagePicker.pickImage(source: ImageSource.camera)
                               .then((value) {
                             print(
                                 'image path => ' + value.path.split('/').last);
@@ -589,27 +589,27 @@ class _NewEventPage extends State<NewEventPage> {
                                                 fit: BoxFit.cover,
                                               ),
                                               onTap: () {
-                                                print('photo index of => ${_images.indexOf(f)}');
-                                                print('tag name => temp_photo_${f.tag}');
-                                                Navigator.push(context,
-                                                    MaterialPageRoute<void>(
-                                                        builder: (BuildContext
-                                                            context) {
-                                                  return Scaffold(
-                                                    backgroundColor:
-                                                        Colors.black,
-                                                    appBar: AppBar(
-                                                      title: Text('View Photo'),
-                                                    ),
-                                                    body: SizedBox.expand(
-                                                      child: Hero(
-                                                        tag: f.tag,
-                                                        child:
-                                                            ViewPhoto(photo: f.photo),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }));
+                                                // print('photo index of => ${_images.indexOf(f)}');
+                                                // print('tag name => temp_photo_${f.tag}');
+                                                // Navigator.push(context,
+                                                //     MaterialPageRoute<void>(
+                                                //         builder: (BuildContext
+                                                //             context) {
+                                                //   return Scaffold(
+                                                //     backgroundColor:
+                                                //         Colors.black,
+                                                //     appBar: AppBar(
+                                                //       title: Text('View Photo'),
+                                                //     ),
+                                                //     body: SizedBox.expand(
+                                                //       child: Hero(
+                                                //         tag: f.tag,
+                                                //         child:
+                                                //             ViewPhoto(photo: f.photo),
+                                                //       ),
+                                                //     ),
+                                                //   );
+                                                // }));
                                               }),
                                           width: 120,
                                           height: 100),
@@ -649,8 +649,8 @@ class _NewEventPage extends State<NewEventPage> {
                     InkWell(
                         child: Text('Add more photo',
                             style: TextStyle(fontSize: 18)),
-                        onTap: () {
-                          ImagePicker.pickImage(source: ImageSource.camera)
+                        onTap: () async {
+                          await ImagePicker.pickImage(source: ImageSource.camera)
                               .then((onValue) {
                             print('image path => ' +
                                 onValue.path.split('/').last);
