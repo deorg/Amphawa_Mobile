@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:amphawa/helper/httpService.dart';
 import 'package:amphawa/model/job.dart';
+import 'package:amphawa/model/photo.dart';
 import 'package:http/http.dart';
 import 'package:dio/dio.dart' as dio;
 
@@ -8,6 +10,7 @@ class JobService {
   static const _host = HttpService.host;
   static const _getJobUrl = _host + HttpService.getJob;
   static const _createJobUrl = _host + HttpService.addJob;
+  static const _uploadPhotoUrl = _host + HttpService.uploadPhoto;
   static const _updateJobUrl = _host + HttpService.updateJob;
   static const _deleteJobUrl = _host + HttpService.deleteJob;
 
@@ -39,6 +42,28 @@ class JobService {
             data: body,
             options: dio.Options(headers: {'Content-Type': 'application/json'}),
             onSendProgress: onSending)
+        .then((res) {
+          onSent(res);
+        })
+        .timeout(Duration(seconds: 60), onTimeout: onSendTimeout)
+        .catchError((onError) {
+          onSendCatchError(onError);
+        });
+  }
+
+  static Future uploadPhoto(
+      {List<Photo> files,
+      Function onSending,
+      Function onSent,
+      Function onSendTimeout,
+      Function onSendCatchError}) async {
+    List<dio.UploadFileInfo> uploadFiles = new List<dio.UploadFileInfo>();
+    files.forEach(
+        (f) => uploadFiles.add(new dio.UploadFileInfo(f.photo, f.name)));
+    dio.FormData formData = new dio.FormData.from({"files": uploadFiles});
+    dio.Dio httpClient = new dio.Dio();
+    httpClient
+        .post(_uploadPhotoUrl, data: formData, onSendProgress: onSending)
         .then((res) {
           onSent(res);
         })

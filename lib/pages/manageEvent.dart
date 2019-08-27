@@ -17,6 +17,7 @@ import 'package:amphawa/widgets/form/chipTile.dart';
 import 'package:amphawa/widgets/form/dateTimePicker.dart';
 import 'package:amphawa/widgets/form/multiSelectChip.dart';
 import 'package:amphawa/widgets/form/myTextField.dart';
+import 'package:amphawa/widgets/form/photoListview.dart';
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart' as dio;
 import 'dart:convert';
@@ -24,7 +25,7 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 
-enum ManageJobAction { ready, readyMore, sent, completed }
+enum ManageJobAction { ready, sent, uploaded, completed }
 
 class NewEventPage extends StatefulWidget {
   @override
@@ -342,12 +343,17 @@ class _NewEventPage extends State<NewEventPage> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15))))
       ]),
-      // Center(
-      //     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
-      //   CircularProgressIndicator(),
-      //   SizedBox(height: 5),
-      //   Text('กำลังส่งข้อมูล')
-      // ]))
+      _action == ManageJobAction.uploaded
+          ? Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text('Uploading ${_progress.toStringAsFixed(1)}%', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+                ]))
+          : SizedBox(height: 0)
     ]);
   }
 
@@ -392,13 +398,34 @@ class _NewEventPage extends State<NewEventPage> {
     print(res.data);
     if (res.statusCode == 200) {
       if (res.data != 0) {
-        setState(() {
-          _action = ManageJobAction.ready;
-          job_desc.clear();
-          solution.clear();
-          device_no.clear();
-          Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
-        });
+        print('job id = ${res.data}');
+        if(_images.length > 0){
+          var images = _images;
+          for(int i = 0; i<images.length;i++){
+            images[i].name = '${res.data}_${i+1}.png';
+          }
+          _action = ManageJobAction.uploaded;
+          JobService.uploadPhoto(files: images, onSending: onSending, onSent: (dio.Response res){
+            _progress = 0;
+            print(res.statusCode);
+            if(res.statusCode == 200){
+              setState(() {
+                _action = ManageJobAction.ready;
+                job_desc.clear();
+                solution.clear();
+                device_no.clear();
+                Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+              });
+            }
+          }, onSendTimeout: onSendTimeout, onSendCatchError: onSendCatchError);
+        }
+        // setState(() {
+        //   _action = ManageJobAction.ready;
+        //   job_desc.clear();
+        //   solution.clear();
+        //   device_no.clear();
+        //   Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+        // });
       } else {
         setState(() {
           _action = ManageJobAction.ready;
@@ -564,13 +591,13 @@ class _NewEventPage extends State<NewEventPage> {
                         child:
                             Text('Add photo', style: TextStyle(fontSize: 24)),
                         onTap: () async {
-                          await ImagePicker.pickImage(source: ImageSource.camera)
+                          await ImagePicker.pickImage(
+                                  source: ImageSource.camera)
                               .then((value) {
-                            print(
-                                'image path => ' + value.path.split('/').last);
                             setState(() {
-                              _images.add(new Photo(photo: value, name: value.path.split('/').last));
-                              print('images length => ${_images.length}');
+                              _images.add(new Photo(
+                                  photo: value,
+                                  name: value.path.split('/').last));
                             });
                           });
                         }))
@@ -579,84 +606,54 @@ class _NewEventPage extends State<NewEventPage> {
                         scrollDirection: Axis.horizontal,
                         child: Row(
                             children: _images
-                                .map((f) => Container(
-                                        child: Stack(children: <Widget>[
-                                      Container(
-                                          margin: EdgeInsets.only(right: 10),
-                                          child: InkWell(
-                                              child: Image.file(
-                                                f.photo,
-                                                fit: BoxFit.cover,
-                                              ),
-                                              onTap: () {
-                                                // print('photo index of => ${_images.indexOf(f)}');
-                                                // print('tag name => temp_photo_${f.tag}');
-                                                // Navigator.push(context,
-                                                //     MaterialPageRoute<void>(
-                                                //         builder: (BuildContext
-                                                //             context) {
-                                                //   return Scaffold(
-                                                //     backgroundColor:
-                                                //         Colors.black,
-                                                //     appBar: AppBar(
-                                                //       title: Text('View Photo'),
-                                                //     ),
-                                                //     body: SizedBox.expand(
-                                                //       child: Hero(
-                                                //         tag: f.tag,
-                                                //         child:
-                                                //             ViewPhoto(photo: f.photo),
-                                                //       ),
-                                                //     ),
-                                                //   );
-                                                // }));
-                                              }),
-                                          width: 120,
-                                          height: 100),
-                                      Container(
-                                          width: 120,
-                                          height: 100,
-                                          child: Align(
-                                              alignment: Alignment.topRight,
-                                              child: SizedBox(
-                                                  width: 20,
-                                                  height: 20,
-                                                  child: FloatingActionButton(
-                                                      backgroundColor:
-                                                          Colors.red[300],
-                                                      child: Icon(Icons.close,
-                                                          size: 18),
-                                                      onPressed: () async {
-                                                        var res = await Alert.dialogWithUiContent(
-                                                            context: context,
-                                                            title:
-                                                                'Delete Photo',
-                                                            content: Text(
-                                                                "Are you sure you want to delete this photo?"),
-                                                            buttons: [
-                                                              'Yes',
-                                                              'No'
-                                                            ]);
-                                                        if (res == 'Yes') {
-                                                          setState(() {
-                                                            _images.remove(f);
-                                                          });
-                                                        }
-                                                      }))))
-                                    ])))
+                                .map((p) => PhotoListItem(
+                                    photo: p,
+                                    onTapImage: () {
+                                      Navigator.push(context,
+                                          MaterialPageRoute<void>(
+                                              builder: (BuildContext context) {
+                                        return Scaffold(
+                                          backgroundColor: Colors.black,
+                                          appBar: AppBar(
+                                            title: Text('View Photo'),
+                                          ),
+                                          body: SizedBox.expand(
+                                            child: Hero(
+                                              tag: p.tag,
+                                              child: ViewPhoto(photo: p.photo),
+                                            ),
+                                          ),
+                                        );
+                                      }));
+                                    },
+                                    onTapDelete: () async {
+                                      var res = await Alert.dialogWithUiContent(
+                                          context: context,
+                                          title: 'Delete Photo',
+                                          content: Text(
+                                              "Are you sure you want to delete this photo?"),
+                                          buttons: ['Yes', 'No']);
+                                      if (res == 'Yes') {
+                                        p.photo.delete().then((onValue) {
+                                          setState(() {
+                                            _images.remove(p);
+                                          });
+                                        });
+                                      }
+                                    }))
                                 .toList())),
                     SizedBox(height: 10),
                     InkWell(
                         child: Text('Add more photo',
                             style: TextStyle(fontSize: 18)),
                         onTap: () async {
-                          await ImagePicker.pickImage(source: ImageSource.camera)
+                          await ImagePicker.pickImage(
+                                  source: ImageSource.camera)
                               .then((onValue) {
-                            print('image path => ' +
-                                onValue.path.split('/').last);
                             setState(() {
-                              _images.add(new Photo(photo: onValue, name: onValue.path.split('/').last));
-                              print('images length => ${_images.length}');
+                              _images.add(new Photo(
+                                  photo: onValue,
+                                  name: onValue.path.split('/').last));
                             });
                           });
                         })
