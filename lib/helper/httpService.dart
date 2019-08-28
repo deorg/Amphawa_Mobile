@@ -1,5 +1,5 @@
 class HttpService{
-  // static const host = 'http://c4a1f514.ngrok.io';
+  // static const host = 'http://c4a1f514.ngrok.io'; few
   static const host = 'http://35.240.167.23';
   static const getJob = '/api/job';
   static const addJob = '/api/job/add';
