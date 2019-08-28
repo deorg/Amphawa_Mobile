@@ -351,7 +351,9 @@ class _NewEventPage extends State<NewEventPage> {
                   children: <Widget>[
                   CircularProgressIndicator(),
                   SizedBox(height: 10),
-                  Text('Uploading ${_progress.toStringAsFixed(1)}%', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+                  Text('Uploading ${_progress.toStringAsFixed(1)}%',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
                 ]))
           : SizedBox(height: 0)
     ]);
@@ -395,37 +397,55 @@ class _NewEventPage extends State<NewEventPage> {
   void onSent(dio.Response res) {
     _progress = 0;
     print(res.statusCode);
-    print(res.data);
     if (res.statusCode == 200) {
       if (res.data != 0) {
         print('job id = ${res.data}');
-        if(_images.length > 0){
+        if (_images.length > 0) {
           var images = _images;
-          for(int i = 0; i<images.length;i++){
-            images[i].name = '${res.data}_${i+1}.png';
+          for (int i = 0; i < images.length; i++) {
+            images[i].name = '${res.data}_${i + 1}.png';
           }
           _action = ManageJobAction.uploaded;
-          JobService.uploadPhoto(files: images, onSending: onSending, onSent: (dio.Response res){
-            _progress = 0;
-            print(res.statusCode);
-            if(res.statusCode == 200){
-              setState(() {
-                _action = ManageJobAction.ready;
-                job_desc.clear();
-                solution.clear();
-                device_no.clear();
-                Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
-              });
-            }
-          }, onSendTimeout: onSendTimeout, onSendCatchError: onSendCatchError);
+          JobService.uploadPhoto(
+              files: images,
+              onSending: onSending,
+              onSent: (dio.Response result) {
+                _progress = 0;
+                print(result.statusCode);
+                print(result.data);
+                if (result.statusCode == 200) {
+                  if (result.data != 0) {
+                    _images.forEach((f) => f.photo.delete());
+                    setState(() {
+                      _action = ManageJobAction.ready;
+                      job_desc.clear();
+                      solution.clear();
+                      device_no.clear();
+                      _images.clear();
+                      Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+                    });
+                  } else {
+                    _images.forEach((f) => f.photo.delete());
+                    setState(() {
+                      _action = ManageJobAction.ready;
+                      _images.clear();
+                      Alert.snackBar(
+                          _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สามารถบันทึกรูปได้');
+                    });
+                  }
+                } else {
+                  _images.forEach((f) => f.photo.delete());
+                  setState(() {
+                    _action = ManageJobAction.ready;
+                    _images.clear();
+                    Alert.snackBar(
+                        _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สารมารถบันทึกรูปได้');
+                  });
+                }
+              },
+              onSendTimeout: onSendTimeout,
+              onSendCatchError: onSendCatchError);
         }
-        // setState(() {
-        //   _action = ManageJobAction.ready;
-        //   job_desc.clear();
-        //   solution.clear();
-        //   device_no.clear();
-        //   Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
-        // });
       } else {
         setState(() {
           _action = ManageJobAction.ready;

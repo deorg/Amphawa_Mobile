@@ -1,5 +1,8 @@
 import 'dart:convert';
+import 'package:amphawa/model/photo.dart';
+import 'package:amphawa/pages/viewPhoto.dart';
 import 'package:amphawa/widgets/dialog/dialogListItem.dart';
+import 'package:amphawa/widgets/form/photoListview.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:amphawa/model/category.dart';
 import 'package:amphawa/model/dept.dart';
@@ -13,8 +16,10 @@ import 'package:amphawa/widgets/dialog/dialog.dart';
 import 'package:amphawa/widgets/form/dateTimePicker.dart';
 import 'package:amphawa/widgets/form/multiSelectChip.dart';
 import 'package:amphawa/widgets/form/myTextField.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:image_picker/image_picker.dart';
 
 enum ManageJobAction { ready, readyMore, sent, deleted, completed }
 
@@ -44,8 +49,7 @@ class _EditEventPage extends State<EditEventPage> {
   TextEditingController job_desc = new TextEditingController();
   TextEditingController solution = new TextEditingController();
   TextEditingController device_no = new TextEditingController();
-  TextEditingController created_by =
-      new TextEditingController();
+  TextEditingController created_by = new TextEditingController();
   TextEditingController date_time = new TextEditingController();
   TextEditingController category = new TextEditingController();
   TextEditingController department = new TextEditingController();
@@ -102,8 +106,10 @@ class _EditEventPage extends State<EditEventPage> {
                 },
                 tooltip: 'Delete'),
             IconButton(
-                icon: Icon(Icons.content_copy, size: 30), onPressed: () => duplicate()),
-            IconButton(icon: Icon(Icons.save, size: 36), onPressed:() => overwrite()),
+                icon: Icon(Icons.content_copy, size: 30),
+                onPressed: () => duplicate()),
+            IconButton(
+                icon: Icon(Icons.save, size: 36), onPressed: () => overwrite()),
             // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
           ],
         ),
@@ -230,7 +236,7 @@ class _EditEventPage extends State<EditEventPage> {
           fillColor: fillColor,
           filled: true,
           label: 'Created by'),
-          SizedBox(height: 15),
+      SizedBox(height: 15),
       Container(
           decoration: BoxDecoration(
               color: Colors.indigo[50],
@@ -378,7 +384,14 @@ class _EditEventPage extends State<EditEventPage> {
                     setState(() {
                       _fromTime = time;
                     });
-                  })
+                  }),
+              SizedBox(height: 10),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text('Photo',
+                      style: TextStyle(fontSize: 18, color: Colors.grey[700]))),
+              SizedBox(height: 5),
+              _imagesForm()
             ])
           ]))
     ];
@@ -519,7 +532,7 @@ class _EditEventPage extends State<EditEventPage> {
     //     content: Text("Are you sure you want to Overwrite this job?"),
     //     buttons: ['Yes', 'No']);
     // if (res == 'Yes') {
-      submit(saveAs: false);
+    submit(saveAs: false);
     // }
   }
 
@@ -686,6 +699,91 @@ class _EditEventPage extends State<EditEventPage> {
 
   void onFetchCateError(dynamic onError) {
     print(onError);
+  }
+
+  Widget _imagesForm() {
+    return DottedBorder(
+        padding: EdgeInsets.all(10),
+        dashPattern: [5],
+        color: Colors.grey[400],
+        strokeWidth: 1,
+        child: Container(
+            width: double.infinity,
+            height: 140,
+            child: widget.job.images == null
+                    ? Center(
+                        child: InkWell(
+                            child: Text('Add photo',
+                                style: TextStyle(fontSize: 24)),
+                            onTap: () async {
+                              // await ImagePicker.pickImage(
+                              //         source: ImageSource.camera)
+                              //     .then((value) {
+                              //   setState(() {
+                              //     _images.add(new Photo(
+                              //         photo: value,
+                              //         name: value.path.split('/').last));
+                              //   });
+                              // });
+                            }))
+                    : Column(children: <Widget>[
+                        SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                                children: widget.job.images
+                                    .map((p) => PhotoListItem(
+                                        photoNetwork: p,
+                                        onTapImage: () {
+                                          // Navigator.push(context,
+                                          //     MaterialPageRoute<void>(builder:
+                                          //         (BuildContext context) {
+                                          //   return Scaffold(
+                                          //     backgroundColor: Colors.black,
+                                          //     appBar: AppBar(
+                                          //       title: Text('View Photo'),
+                                          //     ),
+                                          //     body: SizedBox.expand(
+                                          //       child: Hero(
+                                          //         tag: p.img_name,
+                                          //         child:
+                                          //             ViewPhoto(photo: p.photo),
+                                          //       ),
+                                          //     ),
+                                          //   );
+                                          // }));
+                                        },
+                                        onTapDelete: () async {
+                                          // var res = await Alert.dialogWithUiContent(
+                                          //     context: context,
+                                          //     title: 'Delete Photo',
+                                          //     content: Text(
+                                          //         "Are you sure you want to delete this photo?"),
+                                          //     buttons: ['Yes', 'No']);
+                                          // if (res == 'Yes') {
+                                          //   p.photo.delete().then((onValue) {
+                                          //     setState(() {
+                                          //       _images.remove(p);
+                                          //     });
+                                          //   });
+                                          // }
+                                        }))
+                                    .toList())),
+                        SizedBox(height: 10),
+                        InkWell(
+                            child: Text('Add more photo',
+                                style: TextStyle(fontSize: 18)),
+                            onTap: () async {
+                              // await ImagePicker.pickImage(
+                              //         source: ImageSource.camera)
+                              //     .then((onValue) {
+                              //   setState(() {
+                              //     _images.add(new Photo(
+                              //         photo: onValue,
+                              //         name: onValue.path.split('/').last));
+                              //   });
+                              // });
+                            })
+                      ])));
   }
 
   _showCategoriesDialog() {

@@ -182,7 +182,7 @@ class ListItem extends StatelessWidget {
     final List<Widget> rowChildren = <Widget>[
       Padding(
           padding: EdgeInsets.symmetric(vertical: 10),
-          child: Column(children: <Widget>[
+          child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: <Widget>[
             Text(
                 '${date.day}-${ThaiDate(date).thaiShortMonth}-${ThaiDate(date).thaiShortYear}',
                 style: TextStyle(fontSize: 12)),
@@ -200,7 +200,8 @@ class ListItem extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 22,
                       fontWeight: FontWeight.bold)),
-            )))
+            ))),
+            job.images != null ? Padding(padding: EdgeInsets.only(top: 5), child: Icon(Icons.photo_library)) : SizedBox(height: 0)
           ])),
       SizedBox(width: 10),
       Expanded(
