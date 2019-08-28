@@ -429,8 +429,8 @@ class _NewEventPage extends State<NewEventPage> {
                     setState(() {
                       _action = ManageJobAction.ready;
                       _images.clear();
-                      Alert.snackBar(
-                          _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สามารถบันทึกรูปได้');
+                      Alert.snackBar(_scaffoldKey,
+                          'พบข้อผิดพลาดจาก Server ไม่สามารถบันทึกรูปได้');
                     });
                   }
                 } else {
@@ -438,13 +438,21 @@ class _NewEventPage extends State<NewEventPage> {
                   setState(() {
                     _action = ManageJobAction.ready;
                     _images.clear();
-                    Alert.snackBar(
-                        _scaffoldKey, 'พบข้อผิดพลาดจาก Server ไม่สารมารถบันทึกรูปได้');
+                    Alert.snackBar(_scaffoldKey,
+                        'พบข้อผิดพลาดจาก Server ไม่สารมารถบันทึกรูปได้');
                   });
                 }
               },
               onSendTimeout: onSendTimeout,
               onSendCatchError: onSendCatchError);
+        } else {
+          setState(() {
+            _action = ManageJobAction.ready;
+            job_desc.clear();
+            solution.clear();
+            device_no.clear();
+            Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+          });
         }
       } else {
         setState(() {
