@@ -1,6 +1,5 @@
 import 'dart:convert' as convert;
-
-import 'package:amphawa/model/image.dart';
+import 'package:amphawa/model/photo.dart';
 
 class Job {
   final int job_id;
@@ -11,7 +10,8 @@ class Job {
   final String sect_id;
   final String device_no;
   final List<String> cate_id;
-  final List<Image> images;
+  // final List<PhotoNetwork> images;
+  final List<Photo> images;
   final String created_by;
   final DateTime created_time;
   final String job_status;
@@ -68,12 +68,21 @@ class Job {
       return data;
     }
   }
-  static List<Image> convertImage(List<dynamic> json){
+  // static List<PhotoNetwork> convertImage(List<dynamic> json){
+  //   if (json == null)
+  //     return null;
+  //     else{
+  //       List<PhotoNetwork> images = [];
+  //       json.forEach((i) => images.add(PhotoNetwork(job_id: int.parse(i['job_id'].toString()), img_name: i['img_name'], img_url: i['img_url'])));
+  //       return images;
+  //     }
+  // }
+  static List<Photo> convertImage(List<dynamic> json){
     if (json == null)
       return null;
       else{
-        List<Image> images = [];
-        json.forEach((i) => images.add(Image(job_id: int.parse(i['job_id'].toString()), img_name: i['img_name'], img_url: i['img_url'])));
+        List<Photo> images = [];
+        json.forEach((i) => images.add(Photo(name: i['img_name'], url: i['img_url'])));
         return images;
       }
   }

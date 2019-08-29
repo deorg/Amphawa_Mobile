@@ -1,10 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 
 class ViewPhoto extends StatefulWidget {
-  const ViewPhoto({Key key, this.photo}) : super(key: key);
+  const ViewPhoto({Key key, this.photo, this.url}) : super(key: key);
   final File photo;
+  final String url;
   @override
   State<StatefulWidget> createState() => _viewPhoto();
 }
@@ -88,8 +88,11 @@ class _viewPhoto extends State<ViewPhoto> with SingleTickerProviderStateMixin {
           transform: Matrix4.identity()
             ..translate(_offset.dx, _offset.dy)
             ..scale(_scale),
-          child: Image.file(
+          child: widget.photo != null ? Image.file(
             widget.photo,
+            fit: BoxFit.contain,
+          ) : Image.network(
+            widget.url,
             fit: BoxFit.contain,
           ),
         ),

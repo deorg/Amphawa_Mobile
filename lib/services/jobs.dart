@@ -11,6 +11,7 @@ class JobService {
   static const _getJobUrl = _host + HttpService.getJob;
   static const _createJobUrl = _host + HttpService.addJob;
   static const _uploadPhotoUrl = _host + HttpService.uploadPhoto;
+  static const _deletePhotoUrl = _host + HttpService.deletPhoto;
   static const _updateJobUrl = _host + HttpService.updateJob;
   static const _deleteJobUrl = _host + HttpService.deleteJob;
 
@@ -18,11 +19,8 @@ class JobService {
       {Function onFetchFinished,
       Function onfetchTimeout,
       Function onFetchError}) async {
-    print('fetching');
     await get(_getJobUrl)
-        .then((Response response) {
-          onFetchFinished(response);
-        })
+        .then((Response response) => onFetchFinished(response))
         .timeout(Duration(seconds: 60), onTimeout: onfetchTimeout)
         .catchError((onError) => onFetchError(onError));
   }
@@ -42,13 +40,9 @@ class JobService {
             data: body,
             options: dio.Options(headers: {'Content-Type': 'application/json'}),
             onSendProgress: onSending)
-        .then((res) {
-          onSent(res);
-        })
+        .then((res) => onSent(res))
         .timeout(Duration(seconds: 60), onTimeout: onSendTimeout)
-        .catchError((onError) {
-          onSendCatchError(onError);
-        });
+        .catchError((onError) => onSendCatchError(onError));
   }
 
   static Future uploadPhoto(
@@ -64,13 +58,9 @@ class JobService {
     dio.Dio httpClient = new dio.Dio();
     httpClient
         .post(_uploadPhotoUrl, data: formData, onSendProgress: onSending)
-        .then((res) {
-          onSent(res);
-        })
+        .then((res) => onSent(res))
         .timeout(Duration(seconds: 60), onTimeout: onSendTimeout)
-        .catchError((onError) {
-          onSendCatchError(onError);
-        });
+        .catchError((onError) => onSendCatchError(onError));
   }
 
   static Future updateJob(
@@ -88,13 +78,9 @@ class JobService {
             data: body,
             options: dio.Options(headers: {'Content-Type': 'application/json'}),
             onSendProgress: onSending)
-        .then((res) {
-          onSent(res);
-        })
+        .then((res) => onSent(res))
         .timeout(Duration(seconds: 60), onTimeout: onSendTimeout)
-        .catchError((onError) {
-          onSendCatchError(onError);
-        });
+        .catchError((onError) => onSendCatchError(onError));
   }
 
   static Future deleteJob(
@@ -102,11 +88,19 @@ class JobService {
       Function onDeleted,
       Function onDeleteTimeout,
       Function onDeleteCatchError}) async {
-    print('deleting');
     await get('$_deleteJobUrl?job_id=$job_id')
-        .then((Response response) {
-          onDeleted(response);
-        })
+        .then((Response response) => onDeleted(response))
+        .timeout(Duration(seconds: 60), onTimeout: onDeleteTimeout)
+        .catchError((onError) => onDeleteCatchError(onError));
+  }
+
+  static Future deletePhoto(
+      {String name,
+      Function onDeleted,
+      Function onDeleteTimeout,
+      Function onDeleteCatchError}) async {
+    await get('$_deletePhotoUrl?photo=$name')
+        .then((Response response) => onDeleted(response))
         .timeout(Duration(seconds: 60), onTimeout: onDeleteTimeout)
         .catchError((onError) => onDeleteCatchError(onError));
   }

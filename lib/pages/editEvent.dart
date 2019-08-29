@@ -57,6 +57,7 @@ class _EditEventPage extends State<EditEventPage> {
 
   Color fillColor = Colors.teal[100]; //Color(0xFFE5EEED);
   double _progress = 0;
+  List<Photo> _images = [];
 
   @override
   void initState() {
@@ -68,6 +69,9 @@ class _EditEventPage extends State<EditEventPage> {
     _completed = widget.job.job_status == 'completed' ? true : false;
     _status = _completed == true ? 'Completed' : 'In Progress';
     _fromDate = widget.job.job_date;
+    if(widget.job.images != null){
+      _images = widget.job.images;
+    }
 
     DeptService.fetchDept(
         onFetchFinished: onFetchDeptFinished,
@@ -710,7 +714,7 @@ class _EditEventPage extends State<EditEventPage> {
         child: Container(
             width: double.infinity,
             height: 140,
-            child: widget.job.images == null
+            child: _images.length == 0 
                     ? Center(
                         child: InkWell(
                             child: Text('Add photo',
@@ -730,27 +734,26 @@ class _EditEventPage extends State<EditEventPage> {
                         SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             child: Row(
-                                children: widget.job.images
+                                 children: _images
                                     .map((p) => PhotoListItem(
-                                        photoNetwork: p,
+                                        photo: p,
                                         onTapImage: () {
-                                          // Navigator.push(context,
-                                          //     MaterialPageRoute<void>(builder:
-                                          //         (BuildContext context) {
-                                          //   return Scaffold(
-                                          //     backgroundColor: Colors.black,
-                                          //     appBar: AppBar(
-                                          //       title: Text('View Photo'),
-                                          //     ),
-                                          //     body: SizedBox.expand(
-                                          //       child: Hero(
-                                          //         tag: p.img_name,
-                                          //         child:
-                                          //             ViewPhoto(photo: p.photo),
-                                          //       ),
-                                          //     ),
-                                          //   );
-                                          // }));
+                                          Navigator.push(context,
+                                              MaterialPageRoute<void>(builder:
+                                                  (BuildContext context) {
+                                            return Scaffold(
+                                              backgroundColor: Colors.black,
+                                              appBar: AppBar(
+                                                title: Text(p.name),
+                                              ),
+                                              body: SizedBox.expand(
+                                                child: Hero(
+                                                  tag: p.tag,
+                                                  child: p.photo != null ? ViewPhoto(photo: p.photo) : ViewPhoto(url: p.url),
+                                                ),
+                                              ),
+                                            );
+                                          }));
                                         },
                                         onTapDelete: () async {
                                           // var res = await Alert.dialogWithUiContent(
@@ -780,6 +783,7 @@ class _EditEventPage extends State<EditEventPage> {
                               //     _images.add(new Photo(
                               //         photo: onValue,
                               //         name: onValue.path.split('/').last));
+                              //         print(_images);
                               //   });
                               // });
                             })

@@ -1,12 +1,12 @@
 import 'dart:io';
 
 class Photo {
-  Photo({this.photo, this.name});
+  Photo({this.photo, this.url, this.name});
 
   File photo;
+  String url;
   String name;
 
-  bool isFavorite;
   String get tag => name; // Assuming that all asset names are unique.
 
 }
