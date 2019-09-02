@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:image_picker/image_picker.dart';
 
-enum ManageJobAction { ready, readyMore, sent, deleted, completed }
+enum ManageJobAction { ready, readyMore, sent, uploaded, deleted, completed }
 
 class EditEventPage extends StatefulWidget {
   final Job job;
@@ -35,6 +35,7 @@ class _EditEventPage extends State<EditEventPage> {
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   ManageJobAction _action = ManageJobAction.ready;
   bool _completed = true;
+  bool _duplicate = false;
   String _status;
   List<String> _dept = [];
   List<String> _sect = [];
@@ -57,7 +58,9 @@ class _EditEventPage extends State<EditEventPage> {
 
   Color fillColor = Colors.teal[100]; //Color(0xFFE5EEED);
   double _progress = 0;
-  List<Photo> _images = [];
+  List<Photo> _displayImages = [];
+  List<Photo> _newImages = [];
+  int _lastImgId;
 
   @override
   void initState() {
@@ -69,8 +72,14 @@ class _EditEventPage extends State<EditEventPage> {
     _completed = widget.job.job_status == 'completed' ? true : false;
     _status = _completed == true ? 'Completed' : 'In Progress';
     _fromDate = widget.job.job_date;
-    if(widget.job.images != null){
-      _images = widget.job.images;
+    if (widget.job.images != null) {
+      _displayImages = widget.job.images;
+      _lastImgId =
+          int.parse(_displayImages.last.name.split('.').first.split('_').last);
+      print('last img id => $_lastImgId');
+    } else {
+      _lastImgId = 0;
+      print('last img id => $_lastImgId');
     }
 
     DeptService.fetchDept(
@@ -85,40 +94,46 @@ class _EditEventPage extends State<EditEventPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          leading: new IconButton(
-            icon: new Icon(
-              Icons.arrow_back_ios,
-              color: Colors.white,
-              size: 36,
-            ),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          title: Text('Edit Job',
-              style: TextStyle(
+    return WillPopScope(
+        onWillPop: () async {
+          _newImages.forEach((f) => f.photo.delete());
+          return true;
+        },
+        child: Scaffold(
+            key: _scaffoldKey,
+            appBar: AppBar(
+              leading: new IconButton(
+                icon: new Icon(
+                  Icons.arrow_back_ios,
                   color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold)),
-          backgroundColor: Color(0xFF57607B),
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.delete, size: 36),
-                onPressed: () {
-                  delete(widget.job.job_id);
-                },
-                tooltip: 'Delete'),
-            IconButton(
-                icon: Icon(Icons.content_copy, size: 30),
-                onPressed: () => duplicate()),
-            IconButton(
-                icon: Icon(Icons.save, size: 36), onPressed: () => overwrite()),
-            // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
-          ],
-        ),
-        backgroundColor: Color(0xFF828DAA),
-        body: _buildJobFormUI());
+                  size: 36,
+                ),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              title: Text('Edit Job',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold)),
+              backgroundColor: Color(0xFF57607B),
+              actions: <Widget>[
+                IconButton(
+                    icon: Icon(Icons.delete, size: 36),
+                    onPressed: () {
+                      delete(widget.job.job_id);
+                    },
+                    tooltip: 'Delete'),
+                IconButton(
+                    icon: Icon(Icons.content_copy, size: 30),
+                    onPressed: () => duplicate()),
+                IconButton(
+                    icon: Icon(Icons.save, size: 36),
+                    onPressed: () => overwrite()),
+                // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
+              ],
+            ),
+            backgroundColor: Color(0xFF828DAA),
+            body: _buildJobFormUI()));
   }
 
   Widget _buildJobFormUI() {
@@ -172,45 +187,10 @@ class _EditEventPage extends State<EditEventPage> {
                         activeColor: Colors.green)),
                 SizedBox(width: 10)
               ]))
-          // Text('Edit Job',
-          //     style: TextStyle(
-          //         color: Colors.white,
-          //         fontSize: 24,
-          //         fontWeight: FontWeight.bold)),
         ]),
         alignment: Alignment.center));
     List<Widget> formContent = [
-      Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[
-        // GestureDetector(
-        //     child: Text(_status, style: TextStyle(fontSize: 18)),
-        //     onTap: () {
-        //       setState(() {
-        //         _completed = !_completed;
-        //         if (_completed)
-        //           _status = 'Completed';
-        //         else
-        //           _status = 'In Progress';
-        //       });
-        //     }),
-        // SizedBox(width: 8),
-        // Transform.scale(
-        //     scale: 1.5,
-        //     child: Switch(
-        //         materialTapTargetSize: MaterialTapTargetSize.padded,
-        //         value: _completed,
-        //         onChanged: (value) {
-        //           print(value);
-        //           setState(() {
-        //             _completed = value;
-        //             if (_completed)
-        //               _status = 'Completed';
-        //             else
-        //               _status = 'In Progress';
-        //           });
-        //         },
-        //         inactiveTrackColor: Color(0xFF77BCE1),
-        //         activeColor: Colors.green))
-      ]),
+      Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[]),
       SizedBox(height: 5),
       MyTextField(
           controller: job_desc,
@@ -249,21 +229,6 @@ class _EditEventPage extends State<EditEventPage> {
           // color: Colors.white,
           child: Column(children: <Widget>[
             Column(children: <Widget>[
-              // Row(children: <Widget>[
-              //   GestureDetector(
-              //       child: SizedBox(
-              //           width: 85,
-              //           child:
-              //               Text('Category', style: TextStyle(fontSize: 16))),
-              //       onTap: () {
-              //         _showCategoriesDialog();
-              //       }),
-              //   SizedBox(width: 20),
-              //   DropdownSimple(
-              //       label: 'Category',
-              //       list: _categories,
-              //       onSelected: onCateSelected)
-              // ]),
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
@@ -294,14 +259,6 @@ class _EditEventPage extends State<EditEventPage> {
                     });
                   }),
               SizedBox(height: 10),
-              // Row(children: <Widget>[
-              //   Text('Department', style: TextStyle(fontSize: 16)),
-              //   SizedBox(width: 20),
-              //   DropdownSimple(
-              //       label: 'Department',
-              //       list: _dept,
-              //       onSelected: onDeptSelected)
-              // ]),
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
@@ -334,14 +291,6 @@ class _EditEventPage extends State<EditEventPage> {
                     }
                   }),
               SizedBox(height: 10),
-              // Row(children: <Widget>[
-              //   SizedBox(
-              //       width: 85,
-              //       child: Text('Section', style: TextStyle(fontSize: 16))),
-              //   SizedBox(width: 20),
-              //   DropdownSimple(
-              //       label: 'Section', list: _sect, onSelected: onSectSelected)
-              // ]),
               GestureDetector(
                   child: AbsorbPointer(
                       child: MyTextField(
@@ -410,25 +359,36 @@ class _EditEventPage extends State<EditEventPage> {
             height: MediaQuery.of(context).size.height * 0.7,
             child:
                 SingleChildScrollView(child: Column(children: formContent))));
-    // if (_action == ManageJobAction.sent) {
-    //   column.add(SizedBox(height: 10, child: LinearProgressIndicator()));
-    // }
     column.add(form);
-    return Column(children: <Widget>[
-      _action == ManageJobAction.sent
-          ? SizedBox(height: 10, child: LinearProgressIndicator())
-          : SizedBox(height: 0),
-      _action == ManageJobAction.deleted
-          ? SizedBox(height: 10, child: LinearProgressIndicator())
-          : SizedBox(height: 0),
-      Padding(
-          padding: EdgeInsets.only(left: 10, right: 10, top: 20),
-          child: Card(
+    return Stack(children: <Widget>[
+      Column(children: <Widget>[
+        _action == ManageJobAction.sent
+            ? SizedBox(height: 10, child: LinearProgressIndicator())
+            : _action == ManageJobAction.deleted
+                ? SizedBox(height: 10, child: LinearProgressIndicator())
+                : SizedBox(height: 0),
+        Padding(
+            padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+            child: Card(
+                child: Column(
+                    children: column,
+                    crossAxisAlignment: CrossAxisAlignment.stretch),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))))
+      ]),
+      _action == ManageJobAction.uploaded
+          ? Center(
               child: Column(
-                  children: column,
-                  crossAxisAlignment: CrossAxisAlignment.stretch),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15))))
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text('Uploading ${_progress.toStringAsFixed(1)}%',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+                ]))
+          : SizedBox(height: 0)
     ]);
   }
 
@@ -482,6 +442,7 @@ class _EditEventPage extends State<EditEventPage> {
       print(created_by.text);
 
       if (saveAs) {
+        _duplicate = true;
         JobService.createJob(
             job: data,
             onSending: onSending,
@@ -550,12 +511,58 @@ class _EditEventPage extends State<EditEventPage> {
   void onSent(dio.Response res) {
     _progress = 0;
     print(res.statusCode);
+    print(res.data);
     if (res.statusCode == 200) {
       if (res.data != 0) {
-        setState(() {
-          _action = ManageJobAction.ready;
-          Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
-        });
+        if (_newImages.length > 0) {
+          var images = _newImages;
+          if (_duplicate) {
+            for (int i = 0; i < images.length; i++) {
+              images[i].name = '${res.data}_${i + 1}.png';
+            }
+          } else {
+            images.forEach((i) {
+              _lastImgId++;
+              i.name = '${widget.job.job_id}_$_lastImgId.png';
+            });
+          }
+          _action = ManageJobAction.uploaded;
+          JobService.uploadPhoto(
+              files: images,
+              onSending: onSending,
+              onSent: (dio.Response result) {
+                _progress = 0;
+                print(result.statusCode);
+                print(result.data);
+                if (result.statusCode == 200) {
+                  if (result.data != 0) {
+                    setState(() {
+                      _action = ManageJobAction.ready;
+                      Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+                    });
+                  } else {
+                    setState(() {
+                      _action = ManageJobAction.ready;
+                      Alert.snackBar(_scaffoldKey,
+                          'พบข้อผิดพลาดจาก Server ไม่สามารถบันทึกรูปได้');
+                    });
+                  }
+                } else {
+                  setState(() {
+                    _action = ManageJobAction.ready;
+                    Alert.snackBar(_scaffoldKey,
+                        'พบข้อผิดพลาดจาก Server ไม่สารมารถบันทึกรูปได้');
+                  });
+                }
+              },
+              onSendTimeout: onSendTimeout,
+              onSendCatchError: onSendCatchError);
+        } else {
+          setState(() {
+            _action = ManageJobAction.ready;
+            Alert.snackBar(_scaffoldKey, 'บันทึกข้อมูลสำเร็จ');
+          });
+        }
       } else {
         setState(() {
           _action = ManageJobAction.ready;
@@ -570,9 +577,10 @@ class _EditEventPage extends State<EditEventPage> {
       print(json.decode(res.data));
       setState(() {
         _action = ManageJobAction.ready;
-        Alert.snackBar(_scaffoldKey, 'ไม่สามารถบันทีก���้อมูลได้');
+        Alert.snackBar(_scaffoldKey, 'ไม่สามารถบันทีกข้อมูลได้');
       });
     }
+    _duplicate = false;
   }
 
   void onDeleted(Response res) {
@@ -662,7 +670,7 @@ class _EditEventPage extends State<EditEventPage> {
       List<dynamic> res = json.decode(response.body);
       if (res.length > 0) {
         _sect.clear();
-        // _sect.add('ไม่ระบุ');
+        // _sect.add('ไม่ร���บุ');
         res.forEach((f) {
           _sect
               .add('${Sect.fromJson(f).sect_id} ${Sect.fromJson(f).sect_name}');
@@ -714,80 +722,170 @@ class _EditEventPage extends State<EditEventPage> {
         child: Container(
             width: double.infinity,
             height: 140,
-            child: _images.length == 0 
-                    ? Center(
-                        child: InkWell(
-                            child: Text('Add photo',
-                                style: TextStyle(fontSize: 24)),
-                            onTap: () async {
-                              // await ImagePicker.pickImage(
-                              //         source: ImageSource.camera)
-                              //     .then((value) {
-                              //   setState(() {
-                              //     _images.add(new Photo(
-                              //         photo: value,
-                              //         name: value.path.split('/').last));
-                              //   });
-                              // });
-                            }))
-                    : Column(children: <Widget>[
-                        SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                                 children: _images
-                                    .map((p) => PhotoListItem(
-                                        photo: p,
-                                        onTapImage: () {
-                                          Navigator.push(context,
-                                              MaterialPageRoute<void>(builder:
-                                                  (BuildContext context) {
-                                            return Scaffold(
-                                              backgroundColor: Colors.black,
-                                              appBar: AppBar(
-                                                title: Text(p.name),
-                                              ),
-                                              body: SizedBox.expand(
-                                                child: Hero(
-                                                  tag: p.tag,
-                                                  child: p.photo != null ? ViewPhoto(photo: p.photo) : ViewPhoto(url: p.url),
-                                                ),
-                                              ),
-                                            );
-                                          }));
-                                        },
-                                        onTapDelete: () async {
-                                          // var res = await Alert.dialogWithUiContent(
-                                          //     context: context,
-                                          //     title: 'Delete Photo',
-                                          //     content: Text(
-                                          //         "Are you sure you want to delete this photo?"),
-                                          //     buttons: ['Yes', 'No']);
-                                          // if (res == 'Yes') {
-                                          //   p.photo.delete().then((onValue) {
-                                          //     setState(() {
-                                          //       _images.remove(p);
-                                          //     });
-                                          //   });
-                                          // }
-                                        }))
-                                    .toList())),
-                        SizedBox(height: 10),
-                        InkWell(
-                            child: Text('Add more photo',
-                                style: TextStyle(fontSize: 18)),
-                            onTap: () async {
-                              // await ImagePicker.pickImage(
-                              //         source: ImageSource.camera)
-                              //     .then((onValue) {
-                              //   setState(() {
-                              //     _images.add(new Photo(
-                              //         photo: onValue,
-                              //         name: onValue.path.split('/').last));
-                              //         print(_images);
-                              //   });
-                              // });
-                            })
-                      ])));
+            child: _displayImages.length == 0
+                ? Center(
+                    child: InkWell(
+                        child:
+                            Text('Add photo', style: TextStyle(fontSize: 24)),
+                        onTap: () async {
+                          await ImagePicker.pickImage(
+                                  source: ImageSource.camera)
+                              .then((value) {
+                            setState(() {
+                              _newImages.add(new Photo(
+                                  photo: value,
+                                  name: value.path.split('/').last));
+                              _displayImages.add(new Photo(
+                                  photo: value,
+                                  name: value.path.split('/').last));
+                            });
+                          });
+                        }))
+                : Column(children: <Widget>[
+                    SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                            children: _displayImages
+                                .map((p) => PhotoListItem(
+                                    photo: p,
+                                    onTapImage: () {
+                                      Navigator.push(context,
+                                          MaterialPageRoute<void>(
+                                              builder: (BuildContext context) {
+                                        return Scaffold(
+                                          backgroundColor: Colors.black,
+                                          appBar: AppBar(
+                                            title: Text(p.name),
+                                            actions: <Widget>[
+                                              IconButton(
+                                                  icon: Icon(
+                                                      Icons.delete_forever,
+                                                      color: Colors.white,
+                                                      size: 36),
+                                                  onPressed: () async {
+                                                    var res = await Alert
+                                                        .dialogWithUiContent(
+                                                            context: context,
+                                                            title:
+                                                                'Delete Photo',
+                                                            content: Text(
+                                                                "Are you sure you want to delete this photo?"),
+                                                            buttons: [
+                                                          'Yes',
+                                                          'No'
+                                                        ]);
+                                                    if (res == 'Yes') {
+                                                      if (p.photo != null) {
+                                                        p.photo
+                                                            .delete()
+                                                            .then((onValue) {
+                                                          setState(() {
+                                                            _newImages
+                                                                .remove(p);
+                                                            _displayImages
+                                                                .remove(p);
+                                                            Navigator.pop(
+                                                                context);
+                                                          });
+                                                        });
+                                                      } else {
+                                                        JobService.deletePhoto(
+                                                            name: p.name,
+                                                            onDeleted:
+                                                                (Response res) {
+                                                              print(
+                                                                  'res delete => ${res.body}');
+                                                              if (res.statusCode ==
+                                                                  200) {
+                                                                setState(() {
+                                                                  _displayImages
+                                                                      .remove(
+                                                                          p);
+                                                                  Alert.snackBar(
+                                                                      _scaffoldKey,
+                                                                      'ลบรูปสำเร็จ');
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                });
+                                                              } else {
+                                                                Alert.snackBar(
+                                                                    _scaffoldKey,
+                                                                    'ไม่สามารถลบรูปได้ ${res.body}');
+                                                              }
+                                                            });
+                                                      }
+                                                    }
+                                                  })
+                                            ],
+                                          ),
+                                          body: SizedBox.expand(
+                                            child: Hero(
+                                              tag: p.tag,
+                                              child: p.photo != null
+                                                  ? ViewPhoto(photo: p.photo)
+                                                  : ViewPhoto(url: p.url),
+                                            ),
+                                          ),
+                                        );
+                                      }));
+                                    },
+                                    onTapDelete: () async {
+                                      var res = await Alert.dialogWithUiContent(
+                                          context: context,
+                                          title: 'Delete Photo',
+                                          content: Text(
+                                              "Are you sure you want to delete this photo?"),
+                                          buttons: ['Yes', 'No']);
+                                      if (res == 'Yes') {
+                                        if (p.photo != null) {
+                                          p.photo.delete().then((onValue) {
+                                            setState(() {
+                                              _newImages.remove(p);
+                                              _displayImages.remove(p);
+                                            });
+                                          });
+                                        } else {
+                                          JobService.deletePhoto(
+                                              name: p.name,
+                                              onDeleted: (Response res) {
+                                                print(
+                                                    'res delete => ${res.body}');
+                                                if (res.statusCode == 200) {
+                                                  setState(() {
+                                                    _displayImages.remove(p);
+                                                    Alert.snackBar(_scaffoldKey,
+                                                        'ลบรูปสำเร็จ');
+                                                  });
+                                                } else {
+                                                  Alert.snackBar(_scaffoldKey,
+                                                      'ไม่สามารถลบรูปได้ ${res.body}');
+                                                }
+                                              });
+                                        }
+                                      }
+                                    }))
+                                .toList())),
+                    SizedBox(height: 10),
+                    InkWell(
+                        child: Text('Add more photo',
+                            style: TextStyle(fontSize: 18)),
+                        onTap: () async {
+                          await ImagePicker.pickImage(
+                                  source: ImageSource.camera)
+                              .then((onValue) {
+                            setState(() {
+                              _displayImages.add(new Photo(
+                                  photo: onValue,
+                                  name: onValue.path.split('/').last));
+                              print('display images => $_displayImages');
+                            });
+                            _newImages.add(new Photo(
+                                photo: onValue,
+                                name: onValue.path.split('/').last));
+                            print('new images => $_newImages');
+                          });
+                        })
+                  ])));
   }
 
   _showCategoriesDialog() {
@@ -820,7 +918,7 @@ class _EditEventPage extends State<EditEventPage> {
 
   void onDeptSelected(String newValue) {
     print('select $newValue');
-    // if (newValue != 'ไม่ระบุ') {
+    // if (newValue != 'ไม่��ะบุ') {
     if (newValue != null) {
       _selectedDept = newValue.split(' ').first;
       SectService.fetchSect(

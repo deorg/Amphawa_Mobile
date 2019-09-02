@@ -643,8 +643,36 @@ class _NewEventPage extends State<NewEventPage> {
                                         return Scaffold(
                                           backgroundColor: Colors.black,
                                           appBar: AppBar(
-                                            title: Text('View Photo'),
-                                          ),
+                                              title: Text('View Photo'),
+                                              actions: <Widget>[
+                                                IconButton(
+                                                    icon: Icon(
+                                                        Icons.delete_forever,
+                                                        color: Colors.white,
+                                                        size: 36),
+                                                    onPressed: () async {
+                                                      var res = await Alert
+                                                          .dialogWithUiContent(
+                                                              context: context,
+                                                              title:
+                                                                  'Delete Photo',
+                                                              content: Text("Are you sure you want to delete this photo?"),
+                                                              buttons: [
+                                                            'Yes',
+                                                            'No'
+                                                          ]);
+                                                      if (res == 'Yes') {
+                                                        p.photo
+                                                            .delete()
+                                                            .then((onValue) {
+                                                          setState(() {
+                                                            _images.remove(p);
+                                                            Navigator.pop(context);
+                                                          });
+                                                        });
+                                                      }
+                                                    })
+                                              ]),
                                           body: SizedBox.expand(
                                             child: Hero(
                                               tag: p.tag,

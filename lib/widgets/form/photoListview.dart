@@ -18,32 +18,14 @@ class PhotoListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Container(
-        child: Stack(children: <Widget>[
-      Container(
-          margin: EdgeInsets.only(right: 10),
-          child: InkWell(
-              child: photo.photo != null ? Image.file(
-                photo.photo,
-                fit: BoxFit.cover
-              ) : Image.network(photo.url, fit: BoxFit.cover),
-              onTap: onTapImage),
-          width: 120,
-          height: 100),
-      Container(
-          width: 120,
-          height: 100,
-          child: Align(
-              alignment: Alignment.topRight,
-              child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: FloatingActionButton(
-                    heroTag: photo.tag,
-                      backgroundColor: Colors.red[300],
-                      child: Icon(Icons.close, size: 18),
-                      onPressed: onTapDelete))))
-    ]));
+        margin: EdgeInsets.only(right: 10),
+        child: InkWell(
+            child: photo.photo != null
+                ? Image.file(photo.photo, fit: BoxFit.cover)
+                : Image.network(photo.url, fit: BoxFit.cover),
+            onTap: onTapImage),
+        width: 120,
+        height: 100);
   }
 }
