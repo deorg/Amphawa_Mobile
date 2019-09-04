@@ -728,18 +728,58 @@ class _EditEventPage extends State<EditEventPage> {
                         child:
                             Text('Add photo', style: TextStyle(fontSize: 24)),
                         onTap: () async {
-                          await ImagePicker.pickImage(
-                                  source: ImageSource.camera)
-                              .then((value) {
-                            setState(() {
-                              _newImages.add(new Photo(
-                                  photo: value,
-                                  name: value.path.split('/').last));
-                              _displayImages.add(new Photo(
-                                  photo: value,
-                                  name: value.path.split('/').last));
+                          var option = await Alert.dialogWithListItem(
+                              context: context,
+                              title: 'Image source',
+                              list: [
+                                DialogListItem(
+                                    icon: Icons.camera_alt,
+                                    text: 'Camera',
+                                    onPressed: () =>
+                                        Navigator.pop(context, 'Camera')),
+                                DialogListItem(
+                                    icon: Icons.photo_album,
+                                    text: 'Gallery',
+                                    onPressed: () =>
+                                        Navigator.pop(context, 'Gallery'))
+                              ]);
+                          if (option == 'Camera') {
+                            ImagePicker.pickImage(source: ImageSource.camera)
+                                .then((onValue) {
+                              setState(() {
+                                _newImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                                _displayImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                              });
                             });
-                          });
+                          } else if(option == 'Gallery') {
+                            ImagePicker.pickImage(source: ImageSource.gallery)
+                                .then((onValue) {
+                              setState(() {
+                                _newImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                                _displayImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                              });
+                            });
+                          }
+                          // await ImagePicker.pickImage(
+                          //         source: ImageSource.camera)
+                          //     .then((value) {
+                          //   setState(() {
+                          //     _newImages.add(new Photo(
+                          //         photo: value,
+                          //         name: value.path.split('/').last));
+                          //     _displayImages.add(new Photo(
+                          //         photo: value,
+                          //         name: value.path.split('/').last));
+                          //   });
+                          // });
                         }))
                 : Column(children: <Widget>[
                     SingleChildScrollView(
@@ -870,20 +910,60 @@ class _EditEventPage extends State<EditEventPage> {
                         child: Text('Add more photo',
                             style: TextStyle(fontSize: 18)),
                         onTap: () async {
-                          await ImagePicker.pickImage(
-                                  source: ImageSource.camera)
-                              .then((onValue) {
-                            setState(() {
-                              _displayImages.add(new Photo(
-                                  photo: onValue,
-                                  name: onValue.path.split('/').last));
-                              print('display images => $_displayImages');
+                          var option = await Alert.dialogWithListItem(
+                              context: context,
+                              title: 'Image source',
+                              list: [
+                                DialogListItem(
+                                    icon: Icons.camera_alt,
+                                    text: 'Camera',
+                                    onPressed: () =>
+                                        Navigator.pop(context, 'Camera')),
+                                DialogListItem(
+                                    icon: Icons.photo_album,
+                                    text: 'Gallery',
+                                    onPressed: () =>
+                                        Navigator.pop(context, 'Gallery'))
+                              ]);
+                          if (option == 'Camera') {
+                            ImagePicker.pickImage(source: ImageSource.camera)
+                                .then((onValue) {
+                              setState(() {
+                                _newImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                                _displayImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                              });
                             });
-                            _newImages.add(new Photo(
-                                photo: onValue,
-                                name: onValue.path.split('/').last));
-                            print('new images => $_newImages');
-                          });
+                          } else if (option == 'Gallery') {
+                            ImagePicker.pickImage(source: ImageSource.gallery)
+                                .then((onValue) {
+                              setState(() {
+                                _newImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                                _displayImages.add(new Photo(
+                                    photo: onValue,
+                                    name: onValue.path.split('/').last));
+                              });
+                            });
+                          }
+                          // await ImagePicker.pickImage(
+                          //         source: ImageSource.camera)
+                          //     .then((onValue) {
+                          //   setState(() {
+                          //     _displayImages.add(new Photo(
+                          //         photo: onValue,
+                          //         name: onValue.path.split('/').last));
+                          //     print('display images => $_displayImages');
+                          //   });
+                          //   _newImages.add(new Photo(
+                          //       photo: onValue,
+                          //       name: onValue.path.split('/').last));
+                          //   print('new images => $_newImages');
+                          // });
                         })
                   ])));
   }
