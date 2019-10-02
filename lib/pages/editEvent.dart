@@ -102,38 +102,44 @@ class _EditEventPage extends State<EditEventPage> {
         child: Scaffold(
             key: _scaffoldKey,
             appBar: AppBar(
-              leading: new IconButton(
-                icon: new Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.white,
-                  size: 36,
-                ),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
+              leading: _backBtn(),
               title: Text('Edit Job',
                   style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
                       fontWeight: FontWeight.bold)),
               backgroundColor: Color(0xFF57607B),
-              actions: <Widget>[
-                IconButton(
-                    icon: Icon(Icons.delete, size: 36),
-                    onPressed: () {
-                      delete(widget.job.job_id);
-                    },
-                    tooltip: 'Delete'),
-                IconButton(
-                    icon: Icon(Icons.content_copy, size: 30),
-                    onPressed: () => duplicate()),
-                IconButton(
-                    icon: Icon(Icons.save, size: 36),
-                    onPressed: () => overwrite()),
-                // IconButton(icon: Icon(Icons.save), iconSize: 36, onPressed: submit)
-              ],
+              actions: _appbarActions(),
             ),
             backgroundColor: Color(0xFF828DAA),
             body: _buildJobFormUI()));
+  }
+
+  Widget _backBtn() {
+    return IconButton(
+      icon: Icon(
+        Icons.arrow_back_ios,
+        color: Colors.white,
+        size: 36,
+      ),
+      onPressed: () => Navigator.of(context).pop(),
+    );
+  }
+
+  List<Widget> _appbarActions() {
+    return [
+      IconButton(
+          icon: Icon(Icons.delete, size: 36),
+          onPressed: () {
+            delete(widget.job.job_id);
+          },
+          tooltip: 'Delete'),
+      IconButton(
+          icon: Icon(Icons.content_copy, size: 30),
+          onPressed: () => duplicate()),
+      IconButton(
+          icon: Icon(Icons.save, size: 36), onPressed: () => overwrite()),
+    ];
   }
 
   Widget _buildJobFormUI() {
@@ -144,13 +150,60 @@ class _EditEventPage extends State<EditEventPage> {
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(15), topRight: Radius.circular(15))),
         padding: EdgeInsets.symmetric(vertical: 10),
-        child: Row(children: <Widget>[
+        child: _formHeader(),
+        alignment: Alignment.center));
+    //List<Widget> formContent = ;
+    Widget form = Container(
+        decoration: BoxDecoration(
+            color: Color(0xFFEAEFFB),
+            borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(15),
+                bottomRight: Radius.circular(15))),
+        padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
+        child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.7,
+            child:
+                SingleChildScrollView(child: Column(children: _formContent()))));
+    column.add(form);
+    return Stack(children: <Widget>[
+      Column(children: <Widget>[
+        _action == ManageJobAction.sent
+            ? SizedBox(height: 10, child: LinearProgressIndicator())
+            : _action == ManageJobAction.deleted
+                ? SizedBox(height: 10, child: LinearProgressIndicator())
+                : SizedBox(height: 0),
+        Padding(
+            padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+            child: Card(
+                child: Column(
+                    children: column,
+                    crossAxisAlignment: CrossAxisAlignment.stretch),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15))))
+      ]),
+      _action == ManageJobAction.uploaded
+          ? Center(
+              child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                  CircularProgressIndicator(),
+                  SizedBox(height: 10),
+                  Text('Uploading ${_progress.toStringAsFixed(1)}%',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
+                ]))
+          : SizedBox(height: 0)
+    ]);
+  }
+
+  Widget _formHeader(){
+    return Row(children: <Widget>[
           Padding(
             padding: EdgeInsets.only(left: 10),
             child: GestureDetector(
                 child: Icon(Icons.edit, color: Colors.white, size: 36)),
           ),
-          // SizedBox(width: 10),
           Expanded(
               child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -187,19 +240,21 @@ class _EditEventPage extends State<EditEventPage> {
                         activeColor: Colors.green)),
                 SizedBox(width: 10)
               ]))
-        ]),
-        alignment: Alignment.center));
-    List<Widget> formContent = [
-      Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[]),
+        ]);
+  }
+
+  List<Widget> _formContent(){
+    return [
+      //Row(mainAxisAlignment: MainAxisAlignment.end, children: <Widget>[]),
       SizedBox(height: 5),
-      MyTextField(
+      MyTextField(  // Description
           controller: job_desc,
           label: 'Description',
           prefixIcon: Icon(Icons.note_add),
           fillColor: fillColor,
           filled: true),
       SizedBox(height: 10.0),
-      MyTextField(
+      MyTextField(  // Solution
           controller: solution,
           label: 'Solution',
           prefixIcon: Icon(Icons.edit),
@@ -207,21 +262,21 @@ class _EditEventPage extends State<EditEventPage> {
           fillColor: fillColor,
           filled: true),
       SizedBox(height: 10.0),
-      MyTextField(
+      MyTextField(  // Device No.
           controller: device_no,
           prefixIcon: Icon(Icons.devices),
           label: 'Device No.',
           fillColor: fillColor,
           filled: true),
       SizedBox(height: 10),
-      MyTextField(
+      MyTextField(  // Created by
           controller: created_by,
           prefixIcon: Icon(Icons.person_pin),
           fillColor: fillColor,
           filled: true,
           label: 'Created by'),
       SizedBox(height: 15),
-      Container(
+      Container(    // More detail
           decoration: BoxDecoration(
               color: Colors.indigo[50],
               borderRadius: BorderRadius.circular(10)),
@@ -348,48 +403,6 @@ class _EditEventPage extends State<EditEventPage> {
             ])
           ]))
     ];
-    Widget form = Container(
-        decoration: BoxDecoration(
-            color: Color(0xFFEAEFFB),
-            borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(15),
-                bottomRight: Radius.circular(15))),
-        padding: EdgeInsets.only(left: 10, right: 10, bottom: 10),
-        child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.7,
-            child:
-                SingleChildScrollView(child: Column(children: formContent))));
-    column.add(form);
-    return Stack(children: <Widget>[
-      Column(children: <Widget>[
-        _action == ManageJobAction.sent
-            ? SizedBox(height: 10, child: LinearProgressIndicator())
-            : _action == ManageJobAction.deleted
-                ? SizedBox(height: 10, child: LinearProgressIndicator())
-                : SizedBox(height: 0),
-        Padding(
-            padding: EdgeInsets.only(left: 10, right: 10, top: 20),
-            child: Card(
-                child: Column(
-                    children: column,
-                    crossAxisAlignment: CrossAxisAlignment.stretch),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15))))
-      ]),
-      _action == ManageJobAction.uploaded
-          ? Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                  CircularProgressIndicator(),
-                  SizedBox(height: 10),
-                  Text('Uploading ${_progress.toStringAsFixed(1)}%',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold))
-                ]))
-          : SizedBox(height: 0)
-    ]);
   }
 
   void submit({bool saveAs = false}) {
@@ -431,15 +444,6 @@ class _EditEventPage extends State<EditEventPage> {
           device_no: device_no.text,
           created_by: created_by.text,
           job_status: _completed ? 'completed' : 'progress');
-      print(data.job_id);
-      print(_fromDate);
-      print(job_desc.text);
-      print(solution.text);
-      print(cate_id);
-      print(dept_id);
-      print(sect_id);
-      print(device_no.text);
-      print(created_by.text);
 
       if (saveAs) {
         _duplicate = true;
@@ -755,7 +759,7 @@ class _EditEventPage extends State<EditEventPage> {
                                     name: onValue.path.split('/').last));
                               });
                             });
-                          } else if(option == 'Gallery') {
+                          } else if (option == 'Gallery') {
                             ImagePicker.pickImage(source: ImageSource.gallery)
                                 .then((onValue) {
                               setState(() {
