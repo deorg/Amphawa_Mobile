@@ -25,5 +25,5 @@ samples, guidance on mobile development, and a full API reference.
 
 [job_1]: http://35.240.167.23/images/ss/job_1.jpg
 [job_2]: http://35.240.167.23/images/ss/job_2.jpg
-[job_5]: http://35.240.167.23/images/ss/job_3.jpg
+[job_5]: http://35.240.167.23/images/ss/job_5.jpg
 [job_4]: http://35.240.167.23/images/ss/job_4.jpg
