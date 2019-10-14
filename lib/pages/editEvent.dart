@@ -258,7 +258,7 @@ class _EditEventPage extends State<EditEventPage> {
           controller: solution,
           label: 'Solution',
           prefixIcon: Icon(Icons.edit),
-          maxLines: 3,
+          // maxLines: 3,
           fillColor: fillColor,
           filled: true),
       SizedBox(height: 10.0),

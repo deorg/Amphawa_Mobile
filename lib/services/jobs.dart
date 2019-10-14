@@ -25,6 +25,18 @@ class JobService {
         .catchError((onError) => onFetchError(onError));
   }
 
+  static Future fetchJobFilter(
+      {String str,
+      Function onFetchFinished,
+      Function onFetchTimeout,
+      Function onFetchError}) async {
+    print('$_getJobUrl?str=$str');
+    await get('$_getJobUrl?str=$str')
+        .then((Response response) => onFetchFinished(response))
+        .timeout(Duration(seconds: 60), onTimeout: onFetchTimeout)
+        .catchError((onError) => onFetchError(onError));
+  }
+
   static Future createJob(
       {Job job,
       Function onSending,

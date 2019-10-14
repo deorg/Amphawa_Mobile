@@ -23,14 +23,16 @@ class _Events extends State<Events> with TickerProviderStateMixin {
       GlobalKey<ScaffoldState>();
   DateTime _datetime = new DateTime.now();
   JobFetchAction _action;
-  List<Job> displayJobs = [];
+  List<Job> _displayJobs = [];
   bool _today = false;
   bool _progress = false;
   bool _expand = true;
   List<Job> _jobs = new List<Job>();
   String _searchWrd;
+  String _hintText;
   int _wrdFound = 0;
   final _refreshKey = GlobalKey<RefreshIndicatorState>();
+  FocusNode searchFocus = new FocusNode();
   // PermissionStatus _permissionStatus;
 
   @override
@@ -74,6 +76,18 @@ class _Events extends State<Events> with TickerProviderStateMixin {
         onPressed: () {
           setState(() {
             _today = !_today;
+            _displayJobs = _jobs;
+            if (_today) {
+              _displayJobs = _todayFilter(_displayJobs);
+            }
+            if (_progress) {
+              _displayJobs = _progressFilter(_displayJobs);
+            }
+            // if (_searchWrd != null && _searchWrd.isNotEmpty) {
+            //   _displayJobs = _searchFilter(_displayJobs);
+            // }
+            _wrdFound = _displayJobs.length;
+            _hintText = _today ? '$_wrdFound found' : '';
           });
         });
   }
@@ -87,6 +101,19 @@ class _Events extends State<Events> with TickerProviderStateMixin {
         onPressed: () {
           setState(() {
             _progress = !_progress;
+            _displayJobs = _jobs;
+            if (_today) {
+              _displayJobs = _todayFilter(_displayJobs);
+            }
+            if (_progress) {
+              _displayJobs = _progressFilter(_displayJobs);
+            }
+            // if (_searchWrd != null && _searchWrd.isNotEmpty) {
+            //   _displayJobs = _searchFilter(_displayJobs);
+            // }
+            _wrdFound = _displayJobs.length;
+            _hintText = '$_wrdFound found';
+            print('word count => $_wrdFound');
           });
         },
       ),
@@ -108,7 +135,22 @@ class _Events extends State<Events> with TickerProviderStateMixin {
         break;
       case JobFetchAction.complete:
         return Column(children: <Widget>[
-          SearchBar(onChanged: _onSearchBarChanged, suffix: '$_wrdFound found'),
+          SearchBar(
+              focus: searchFocus,
+              onChanged: _onSearchBarChanged,
+              suffix: '$_wrdFound found',
+              hintText: this._hintText,
+              onTap: () {
+                this._hintText = '';
+              },
+              onPress: () {
+                print('on search pressed');
+                JobService.fetchJobFilter(
+                    str: _searchWrd.toLowerCase(),
+                    onFetchFinished: onFetchFinished,
+                    onFetchTimeout: onFetchTimeout,
+                    onFetchError: onFetchError);
+              }),
           _buildFetchCompleteUI()
         ]);
         break;
@@ -144,17 +186,17 @@ class _Events extends State<Events> with TickerProviderStateMixin {
   }
 
   Widget _buildFetchCompleteUI() {
-    displayJobs = _jobs;
+    _displayJobs = _jobs;
     if (_today) {
-      displayJobs = _todayFilter(displayJobs);
+      _displayJobs = _todayFilter(_displayJobs);
     }
     if (_progress) {
-      displayJobs = _progressFilter(displayJobs);
+      _displayJobs = _progressFilter(_displayJobs);
     }
-    if (_searchWrd != null && _searchWrd.isNotEmpty) {
-      displayJobs = _searchFilter(displayJobs);
-    }
-    _wrdFound = displayJobs.length;
+    // if (_searchWrd != null && _searchWrd.isNotEmpty) {
+    //   _displayJobs = _searchFilter(_displayJobs);
+    // }
+    _wrdFound = _displayJobs.length;
     return Expanded(
         child: RefreshIndicator(
             key: _refreshKey,
@@ -162,24 +204,24 @@ class _Events extends State<Events> with TickerProviderStateMixin {
             onRefresh: _onListViewRefresh,
             child: ListView.builder(
                 padding: EdgeInsets.symmetric(vertical: 0, horizontal: 5),
-                itemCount: displayJobs.length,
+                itemCount: _displayJobs.length,
                 itemBuilder: (context, index) {
                   List<String> lines = [];
-                  if (displayJobs[index].job_desc != null)
-                    lines.add(displayJobs[index].job_desc);
-                  if (displayJobs[index].solution != "")
-                    lines.add("Sol: \t" + displayJobs[index].solution);
-                  if (displayJobs[index].cate_id != null)
+                  if (_displayJobs[index].job_desc != null)
+                    lines.add(_displayJobs[index].job_desc);
+                  if (_displayJobs[index].solution != "")
+                    lines.add("Sol: \t" + _displayJobs[index].solution);
+                  if (_displayJobs[index].cate_id != null)
                     lines.add(
-                        "Cate: \t\t" + displayJobs[index].cate_id.join(", "));
-                  if (displayJobs[index].dept_id != "")
-                    lines.add("Dept: \t\t" + displayJobs[index].dept_id);
-                  if (displayJobs[index].sect_id != "")
-                    lines.add("Sect: \t\t" + displayJobs[index].sect_id);
-                  if (displayJobs[index].created_by != '')
-                    lines.add('Writer: ' + displayJobs[index].created_by);
+                        "Cate: \t\t" + _displayJobs[index].cate_id.join(", "));
+                  if (_displayJobs[index].dept_id != "")
+                    lines.add("Dept: \t\t" + _displayJobs[index].dept_id);
+                  if (_displayJobs[index].sect_id != "")
+                    lines.add("Sect: \t\t" + _displayJobs[index].sect_id);
+                  if (_displayJobs[index].created_by != '')
+                    lines.add('Writer: ' + _displayJobs[index].created_by);
                   return Dismissible(
-                      key: Key(displayJobs[index].job_id.toString()),
+                      key: Key(_displayJobs[index].job_id.toString()),
                       background: Container(
                           color: Colors.green[100],
                           child: Padding(
@@ -215,13 +257,13 @@ class _Events extends State<Events> with TickerProviderStateMixin {
                                     ),
                                     child: InkWell(
                                         child: ListItem(
-                                            date: displayJobs[index].job_date,
-                                            number: displayJobs.length - index,
+                                            date: _displayJobs[index].job_date,
+                                            number: _displayJobs.length - index,
                                             icon: Icons.note_add,
                                             lines: lines,
                                             status:
-                                                displayJobs[index].job_status,
-                                            job: displayJobs[index]),
+                                                _displayJobs[index].job_status,
+                                            job: _displayJobs[index]),
                                         onTap: () => _onJobItemTap(index)))),
                           )));
                 })));
@@ -271,20 +313,50 @@ class _Events extends State<Events> with TickerProviderStateMixin {
     return value.where((j) => j.job_status != 'completed').toList();
   }
 
+  // List<Job> _searchFilter(List<Job> value) {
+  //   return value
+  //       .where((j) =>
+  //           j.job_desc.toLowerCase().contains(_searchWrd.toLowerCase()) ||
+  //           j.solution.toLowerCase().contains(_searchWrd.toLowerCase()) ||
+  //           j.dept_id.toLowerCase().contains(_searchWrd.toLowerCase()) ||
+  //           j.sect_id.toLowerCase().contains(_searchWrd.toLowerCase()) ||
+  //           j.created_by.toLowerCase().contains(_searchWrd.toLowerCase()))
+  //       .toList();
+  // }
   List<Job> _searchFilter(List<Job> value) {
-    return value
-        .where((j) =>
-            j.job_desc.toLowerCase().contains(_searchWrd.toLowerCase()) ||
-            j.solution.toLowerCase().contains(_searchWrd.toLowerCase()) ||
-            j.dept_id.toLowerCase().contains(_searchWrd.toLowerCase()) ||
-            j.sect_id.toLowerCase().contains(_searchWrd.toLowerCase()) ||
-            j.created_by.toLowerCase().contains(_searchWrd.toLowerCase()))
-        .toList();
+    print('search word => $_searchWrd');
+    JobService.fetchJobFilter(
+        str: _searchWrd.toLowerCase(),
+        onFetchFinished: (response) {
+          if (response.statusCode == 200) {
+            List<dynamic> res = json.decode(response.body);
+            if (res.length > 0) {
+              value.clear();
+              res.forEach((f) {
+                value.add(Job.fromJson(f));
+              });
+              return value;
+            }
+            return null;
+          }
+        },
+        onFetchTimeout: onFetchTimeout,
+        onFetchError: onFetchError);
   }
 
   void _onSearchBarChanged(String value) {
     setState(() {
       _searchWrd = value;
+      if (_today) {
+        _displayJobs = _todayFilter(_displayJobs);
+      }
+      if (_progress) {
+        _displayJobs = _progressFilter(_displayJobs);
+      }
+      // if (_searchWrd != null && _searchWrd.isNotEmpty) {
+      //   _displayJobs = _searchFilter(_displayJobs);
+      // }
+      _wrdFound = _displayJobs.length;
     });
   }
 
@@ -301,7 +373,7 @@ class _Events extends State<Events> with TickerProviderStateMixin {
     if (direction == DismissDirection.endToStart) {
       var res = await Alert.dialogWithUiContent(
           context: context,
-          title: 'Delete job ${displayJobs[index].job_id}',
+          title: 'Delete job ${_displayJobs[index].job_id}',
           content: Text("Are you sure you want to delete this job?"),
           buttons: ['Yes', 'No']);
       if (res == 'Yes')
@@ -311,7 +383,7 @@ class _Events extends State<Events> with TickerProviderStateMixin {
     } else if (direction == DismissDirection.startToEnd) {
       var res = await Alert.dialogWithUiContent(
           context: context,
-          title: 'Mark job ${displayJobs[index].job_id} to be completed',
+          title: 'Mark job ${_displayJobs[index].job_id} to be completed',
           content: Text("Are you sure you want to finished this job?"),
           buttons: ['Yes', 'No']);
       if (res == 'Yes')
@@ -325,11 +397,11 @@ class _Events extends State<Events> with TickerProviderStateMixin {
   _onDismissed(DismissDirection direction, int index) {
     if (direction == DismissDirection.endToStart) {
       setState(() {
-        displayJobs.removeAt(index);
+        _displayJobs.removeAt(index);
       });
     } else {
       setState(() {
-        displayJobs.removeAt(index);
+        _displayJobs.removeAt(index);
       });
     }
   }
@@ -339,7 +411,7 @@ class _Events extends State<Events> with TickerProviderStateMixin {
         context,
         MaterialPageRoute<ManageJobAction>(
           builder: (BuildContext context) =>
-              edit.EditEventPage(displayJobs[index]),
+              edit.EditEventPage(_displayJobs[index]),
           fullscreenDialog: true,
         )).then((ManageJobAction result) {
       _searchWrd = "";
@@ -354,6 +426,7 @@ class _Events extends State<Events> with TickerProviderStateMixin {
   void onFetchFinished(Response response) {
     if (response.statusCode == 200) {
       List<dynamic> res = json.decode(response.body);
+      print('response => $res');
       if (res.length > 0) {
         _jobs.clear();
         res.forEach((f) {
